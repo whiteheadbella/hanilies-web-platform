@@ -1,0 +1,136 @@
+{% extends "base.html" %}
+
+{% block content %}
+<div class="row justify-content-center mt-4">
+    <div class="col-lg-8">
+        <div class="card shadow-sm">
+            <div class="card-body">
+                <h3 class="mb-3">Cake Customization</h3>
+                <form method="post" enctype="multipart/form-data">
+                    {% csrf_token %}
+                    {% if form.non_field_errors %}
+                    <div class="alert alert-danger py-2">{{ form.non_field_errors }}</div>
+                    {% endif %}
+                    <div class="mb-3">
+                        {{ form.cake.label_tag }}
+                        {{ form.cake }}
+                    </div>
+                    <div class="mb-3">
+                        <label class="form-label">Base Price</label>
+                        <input id="basePriceBox" type="text" class="form-control" value="P0.00" readonly>
+                    </div>
+                    <div class="mb-3">
+                        {{ form.size.label_tag }}
+                        {{ form.size }}
+                    </div>
+                    <div class="mb-3">
+                        {{ form.layers.label_tag }}
+                        {{ form.layers }}
+                    </div>
+                    <div class="mb-3">
+                        {{ form.quantity.label_tag }}
+                        {{ form.quantity }}
+                    </div>
+                    <div class="mb-3">
+                        {{ form.flavor.label_tag }}
+                        {{ form.flavor }}
+                    </div>
+                    <div class="mb-3">
+                        {{ form.theme.label_tag }}
+                        {{ form.theme }}
+                    </div>
+                    <div class="mb-3">
+                        {{ form.message.label_tag }}
+                        {{ form.message }}
+                    </div>
+
+                    <div class="mb-3">
+                        <label class="form-label"><strong>Package Items / Add-ons (Categorized)</strong></label>
+                        {% for category in addon_category_sections %}
+                        <div class="border rounded p-2 mb-2">
+                            <div class="d-flex justify-content-between align-items-center mb-1">
+                                <div class="fw-semibold">{{ category.name }}</div>
+                                {% if category.show_event_packages_link %}
+                                <a class="btn btn-sm btn-success" href="{% url 'package_list' %}">Click here</a>
+                                {% endif %}
+                            </div>
+                            <div class="row">
+                                {% for addon in category.items %}
+                                <div class="col-md-6">
+                                    <div class="d-flex justify-content-between align-items-start gap-2 mb-1">
+                                        <div class="form-check mb-0">
+                                            <input
+                                                class="form-check-input"
+                                                type="checkbox"
+                                                name="add_ons"
+                                                id="addon_{{ addon.id }}"
+                                                value="{{ addon.id }}"
+                                                {% if addon.id|stringformat:"s" in selected_add_ons %}checked{% endif %}
+                                            >
+                                            <label class="form-check-label" for="addon_{{ addon.id }}">
+                                                {{ addon.name }}
+                                                <span class="text-muted">(P{{ addon.price }})</span>
+                                            </label>
+                                        </div>
+                                        {% if is_manager_user and category.allow_manage_actions %}
+                                        <div class="d-flex gap-1">
+                                            <a
+                                                class="btn btn-sm btn-outline-secondary"
+                                                href="/admin/products/addonitem/{{ addon.id }}/change/"
+                                                target="_blank"
+                                                rel="noopener"
+                                            >
+                                                Edit
+                                            </a>
+                                            <form method="post" action="{% url 'customization_remove_addon' addon.id %}" class="d-inline">
+                                                {% csrf_token %}
+                                                <button
+                                                    type="submit"
+                                                    class="btn btn-sm btn-outline-danger"
+                                                    onclick="return confirm('Remove this add-on item?');"
+                                                >
+                                                    Remove
+                                                </button>
+                                            </form>
+                                        </div>
+                                        {% endif %}
+                                    </div>
+                                </div>
+                                {% empty %}
+                                <div class="col-12 text-muted small">No items.</div>
+                                {% endfor %}
+                            </div>
+                        </div>
+                        {% endfor %}
+                    </div>
+
+                    <div class="mb-3">
+                        {{ form.reference_image.label_tag }}
+                        {{ form.reference_image }}
+                    </div>
+                    <div class="d-flex gap-2">
+                        <button type="submit" name="submit_action" value="order_now" class="btn btn-primary">Order Now</button>
+                        <button type="submit" name="submit_action" value="add_to_cart" class="btn btn-outline-primary">Add to Cart</button>
+                    </div>
+                </form>
+            </div>
+        </div>
+    </div>
+</div>
+{{ cake_prices|json_script:"cake-prices-data" }}
+<script>
+(function() {
+  const cakeSelect = document.getElementById("id_cake");
+  const basePriceBox = document.getElementById("basePriceBox");
+  if (!cakeSelect || !basePriceBox) return;
+  const cakePrices = JSON.parse(document.getElementById("cake-prices-data").textContent);
+  function updateBasePrice() {
+    const selected = cakeSelect.value;
+    const price = cakePrices[selected] || "0.00";
+    basePriceBox.value = "P" + price;
+  }
+  cakeSelect.addEventListener("change", updateBasePrice);
+  updateBasePrice();
+})();
+</script>
+{% endblock %}

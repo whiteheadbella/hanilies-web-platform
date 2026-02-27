@@ -1,0 +1,144 @@
+{% extends "base.html" %}
+
+{% block content %}
+<div class="container mt-5">
+    {% if grouped_packages %}
+    <ul class="nav nav-tabs mb-4" id="packageCategoryTabs" role="tablist">
+        {% for category in grouped_packages %}
+        <li class="nav-item" role="presentation">
+            <button
+                class="nav-link {% if forloop.first %}active{% endif %}"
+                id="tab-{{ category.category|slugify }}"
+                data-bs-toggle="tab"
+                data-bs-target="#pane-{{ category.category|slugify }}"
+                type="button"
+                role="tab"
+                aria-controls="pane-{{ category.category|slugify }}"
+                aria-selected="{% if forloop.first %}true{% else %}false{% endif %}"
+            >
+                {% if category.category == "Uncategorized" %}Party Packages{% else %}{{ category.category }}{% endif %}
+            </button>
+        </li>
+        {% endfor %}
+    </ul>
+
+    <div class="tab-content" id="packageCategoryTabContent">
+        {% for category in grouped_packages %}
+        <div
+            class="tab-pane fade {% if forloop.first %}show active{% endif %}"
+            id="pane-{{ category.category|slugify }}"
+            role="tabpanel"
+            aria-labelledby="tab-{{ category.category|slugify }}"
+        >
+            <section class="mb-4">
+                <div class="mb-3">
+                    <a class="btn btn-success btn-sm" href="{% if category.category == 'Birthday' %}{% url 'customer_home' %}{% else %}{% url 'package_list' %}{% endif %}">
+                        <i class="bi bi-arrow-left me-1"></i>{% if category.category == "Birthday" %}Back to Homepage{% else %}Back to Event Packages{% endif %}
+                    </a>
+                </div>
+                {% for package_set in category.sets %}
+                {% if package_set.set_name != "General Set" %}
+                <div class="mb-3" id="set-{{ category.category|slugify }}-{{ package_set.set_name|slugify }}">
+                    <h5 class="text-secondary">{{ package_set.set_name }}</h5>
+                    <div class="row g-4">
+                        {% for package in package_set.packages %}
+                        <div class="col-12 col-md-6 col-lg-4">
+                            <div class="card h-100">
+                                <div class="card-body">
+                                    <h5 class="card-title">
+                                        {% if package.package_number %}Package {{ package.package_number }}{% else %}{{ package.name }}{% endif %}
+                                    </h5>
+                                    {% if package.name and package.package_number %}
+                                    <p class="card-text mb-1"><strong>{{ package.name }}</strong></p>
+                                    {% endif %}
+                                    <p class="card-text"><strong>Theme:</strong> {{ package.theme_style }}</p>
+                                    <p class="card-text">{{ package.description }}</p>
+                                    {% if package.items.all %}
+                                    <p class="card-text mb-1"><strong>Inclusions:</strong></p>
+                                    <ul class="small ps-3">
+                                        {% for item in package.items.all %}
+                                        <li>
+                                            {% if item.quantity %}{{ item.quantity }}{% endif %}
+                                            {% if item.unit %} {{ item.unit }}{% endif %}
+                                            {{ item.item_name }}
+                                            <span class="text-muted">({{ item.item_group }})</span>
+                                            <span class="text-muted">- P{{ item.unit_price }}</span>
+                                        </li>
+                                        {% endfor %}
+                                    </ul>
+                                    {% elif package.inclusions %}
+                                    <p class="card-text"><strong>Inclusions:</strong><br>{{ package.inclusions|linebreaksbr }}</p>
+                                    {% endif %}
+                                    {% if package.duration_hours %}
+                                    <p class="card-text"><strong>Duration:</strong> {{ package.duration_hours }}</p>
+                                    {% endif %}
+                                    <p class="card-text"><strong>Starts from:</strong> P{{ package.base_price }}</p>
+                                    <p class="card-text">
+                                        <strong>Season Tags:</strong>
+                                        {% for tag in package.season_tags.all %}
+                                        <span class="badge bg-info text-dark">{{ tag.name }}</span>
+                                        {% empty %}
+                                        <span class="text-muted">None</span>
+                                        {% endfor %}
+                                    </p>
+                                    <form method="post" action="{% url 'add_package_to_cart' package.id %}">
+                                        {% csrf_token %}
+                                        <input type="hidden" name="next" value="{{ request.path }}">
+
+                                        {% if package.items.all %}
+                                        <div class="mb-2">
+                                            <label class="form-label small mb-1"><strong>Customize Inclusions</strong></label>
+                                            <div class="border rounded p-2" style="max-height: 180px; overflow-y: auto;">
+                                                {% for item in package.items.all %}
+                                                <div class="d-flex justify-content-between align-items-center gap-2 mb-1">
+                                                    <div class="form-check mb-0">
+                                                        <input
+                                                            class="form-check-input"
+                                                            type="checkbox"
+                                                            name="selected_items"
+                                                            value="{{ item.id }}"
+                                                            id="package_{{ package.id }}_item_{{ item.id }}"
+                                                            checked
+                                                        >
+                                                        <label class="form-check-label small" for="package_{{ package.id }}_item_{{ item.id }}">
+                                                            {{ item.item_name }}
+                                                            <span class="text-muted">({{ item.item_group }})</span>
+                                                            <span class="text-muted">- P{{ item.unit_price }}</span>
+                                                        </label>
+                                                    </div>
+                                                    <input
+                                                        type="number"
+                                                        min="1"
+                                                        name="inclusion_qty_{{ item.id }}"
+                                                        value="{{ item.quantity|default:1 }}"
+                                                        class="form-control form-control-sm"
+                                                        style="max-width: 80px;"
+                                                    >
+                                                </div>
+                                                {% endfor %}
+                                            </div>
+                                        </div>
+                                        {% endif %}
+
+                                        <div class="d-flex gap-2">
+                                            <button type="submit" name="submit_action" value="order_now" class="btn btn-sm btn-success">Order Now</button>
+                                            <button type="submit" name="submit_action" value="add_to_cart" class="btn btn-sm btn-outline-primary">Add to Cart</button>
+                                        </div>
+                                    </form>
+                                </div>
+                            </div>
+                        </div>
+                        {% endfor %}
+                    </div>
+                </div>
+                {% endif %}
+                {% endfor %}
+            </section>
+        </div>
+        {% endfor %}
+    </div>
+    {% else %}
+    <p class="text-muted">No event packages available.</p>
+    {% endif %}
+</div>
+{% endblock %}

@@ -1,0 +1,16 @@
+{% extends 'base.html' %}
+
+{% block content %}
+
+<h1>Cakes</h1>
+
+{% for cake in cakes %}
+    <div>
+        <h3>{{ cake.name }}</h3>
+        <p>{{ cake.flavor }}</p>
+        <p>{{ cake.base_price }}</p>
+        <img src="{{ cake.image.url }}" width="200">
+    </div>
+{% endfor %}
+
+{% endblock %}

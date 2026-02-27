@@ -1,0 +1,57 @@
+{% extends "base.html" %}
+
+{% block content %}
+<div class="container mt-5">
+    <div class="d-flex justify-content-between align-items-center mb-3">
+        <div>
+            <h2 class="mb-1">{{ set_name }}</h2>
+            <div class="text-muted">{{ category_name }}</div>
+        </div>
+        <a href="{% url 'package_list' %}" class="btn btn-outline-secondary btn-sm">Back to Sets</a>
+    </div>
+
+    <div class="row">
+        {% for package in packages %}
+        <div class="col-md-6 col-lg-4 mb-4">
+            <div class="card h-100">
+                <div class="card-body">
+                    <h5 class="card-title">
+                        {% if package.package_number %}Package {{ package.package_number }}{% else %}{{ package.name }}{% endif %}
+                    </h5>
+                    {% if package.name and package.package_number %}
+                    <p class="card-text mb-1"><strong>{{ package.name }}</strong></p>
+                    {% endif %}
+                    <p class="card-text"><strong>Theme:</strong> {{ package.theme_style }}</p>
+                    <p class="card-text">{{ package.description }}</p>
+                    {% if package.items.all %}
+                    <p class="card-text mb-1"><strong>Inclusions:</strong></p>
+                    <ul class="small ps-3">
+                        {% for item in package.items.all %}
+                        <li>
+                            {% if item.quantity %}{{ item.quantity }}{% endif %}
+                            {% if item.unit %} {{ item.unit }}{% endif %}
+                            {{ item.item_name }}
+                            <span class="text-muted">({{ item.item_group }})</span>
+                        </li>
+                        {% endfor %}
+                    </ul>
+                    {% elif package.inclusions %}
+                    <p class="card-text"><strong>Inclusions:</strong><br>{{ package.inclusions|linebreaksbr }}</p>
+                    {% endif %}
+                    {% if package.duration_hours %}
+                    <p class="card-text"><strong>Duration:</strong> {{ package.duration_hours }}</p>
+                    {% endif %}
+                    <p class="card-text"><strong>Starts from:</strong> P{{ package.base_price }}</p>
+                    <div class="d-flex gap-2">
+                        <a class="btn btn-sm btn-success" href="{% url 'order_now_package' package.id %}">Order Now</a>
+                        <a class="btn btn-sm btn-outline-primary" href="{% url 'add_package_to_cart' package.id %}?next={{ request.path }}">Add to Cart</a>
+                    </div>
+                </div>
+            </div>
+        </div>
+        {% empty %}
+        <div class="col-12 text-muted">No packages in this set.</div>
+        {% endfor %}
+    </div>
+</div>
+{% endblock %}

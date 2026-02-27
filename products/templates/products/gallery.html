@@ -1,0 +1,29 @@
+{% extends "base.html" %}
+
+{% block content %}
+<h3 class="mt-4">Gallery Photos</h3>
+<div class="row g-3 mt-1">
+    {% for p in photos %}
+    <div class="col-md-4">
+        <div class="card h-100">
+            <img class="card-img-top" src="{{ p.image.url }}" alt="{{ p.title }}">
+        </div>
+    </div>
+    {% empty %}
+    <div class="col-12 text-muted">No gallery photos yet.</div>
+    {% endfor %}
+</div>
+
+<h4 class="mt-5">Cake and Cupcake Showcase</h4>
+<div class="row g-3">
+    {% for cake in recommended_cakes %}
+    <div class="col-md-3">
+        <div class="card h-100">
+            <img class="card-img-top" src="{{ cake.image.url }}" alt="Cake image">
+        </div>
+    </div>
+    {% empty %}
+    <div class="col-12 text-muted">No seasonal recommendations.</div>
+    {% endfor %}
+</div>
+{% endblock %}

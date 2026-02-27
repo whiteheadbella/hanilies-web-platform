@@ -1,0 +1,87 @@
+{% extends "base.html" %}
+
+{% block content %}
+<section class="mt-4 py-5 border rounded-3" style="background: radial-gradient(circle at 20% 20%, #f8ecf3 0%, #f3e2ec 45%, #eedbe6 100%); min-height: 620px; width: 100vw; margin-left: calc(50% - 50vw); margin-right: calc(50% - 50vw); border-color:#e3c8d7 !important;">
+    <div class="container">
+    <div class="row align-items-center" style="min-height: 540px;">
+        <div class="col-lg-6">
+            <h1 class="fw-bold" style="font-size: 3rem; line-height: 1.1; color: #511a2a;">
+                Sweet Moments,<br>
+                <span style="color: #7c253f;">Perfectly</span> Delivered
+            </h1>
+            <p class="lead mt-4" style="max-width: 560px; color: #5f5d63;">
+                Experience the finest celebration cakes and event packages with our intelligent ordering system.
+                From birthdays to weddings, we make every occasion special.
+            </p>
+
+            <div class="d-flex gap-3 mt-4 flex-wrap">
+                {% if user.is_authenticated %}
+                <a href="{% url 'customize_cake' %}" class="btn btn-lg rounded-pill px-4" style="background:#c3833b;color:#fff;font-weight:600;">
+                    Order Now
+                </a>
+                <a href="{% url 'package_list' %}" class="btn btn-lg rounded-pill px-4" style="border:1px solid #c3833b;color:#8c5a20;background:#f8ecdc;font-weight:600;">
+                    View Packages
+                </a>
+                {% else %}
+                <a href="{% url 'register' %}" class="btn btn-lg rounded-pill px-4" style="background:#c3833b;color:#fff;font-weight:600;">
+                    Register
+                </a>
+                <a href="{% url 'login' %}" class="btn btn-lg rounded-pill px-4" style="border:1px solid #c3833b;color:#8c5a20;background:#f8ecdc;font-weight:600;">
+                    Log In
+                </a>
+                {% endif %}
+            </div>
+
+            <div class="row mt-5 g-3">
+                <div class="col-4">
+                    <div class="h2 mb-0" style="color:#64233a;">15+</div>
+                    <div class="small text-muted">Years of Service</div>
+                </div>
+                <div class="col-4">
+                    <div class="h2 mb-0" style="color:#64233a;">10k+</div>
+                    <div class="small text-muted">Happy Customers</div>
+                </div>
+                <div class="col-4">
+                    <div class="h2 mb-0" style="color:#64233a;">100+</div>
+                    <div class="small text-muted">Cake Designs</div>
+                </div>
+            </div>
+        </div>
+
+        <div class="col-lg-6">
+            {% if hero_image %}
+            <img src="{{ hero_image.url }}" alt="Celebration Cake" class="img-fluid" style="height: 540px; width: 100%; object-fit: contain; object-position: center center;">
+            {% else %}
+            <div class="d-flex align-items-center justify-content-center rounded-4 border bg-white p-4" style="height: 420px;">
+                {% if is_manager_user %}
+                <form method="post" enctype="multipart/form-data" class="w-100" style="max-width: 360px;">
+                    {% csrf_token %}
+                    <h5 class="mb-3 text-center" style="color:#64233a;">Upload Homepage Image</h5>
+                    <div class="mb-2">
+                        {{ hero_upload_form.title }}
+                    </div>
+                    <div class="mb-3">
+                        {{ hero_upload_form.image }}
+                    </div>
+                    <button type="submit" class="btn btn-primary w-100">Upload Image</button>
+                </form>
+                {% else %}
+                <span class="text-muted">Homepage image will be available soon.</span>
+                {% endif %}
+            </div>
+            {% endif %}
+        </div>
+    </div>
+    </div>
+</section>
+
+<section class="mt-4 p-4 rounded-4 border bg-white">
+    <div class="d-flex justify-content-between align-items-center">
+        <div>
+            <h2 class="h4 mb-1">Event Packages</h2>
+            <p class="text-muted mb-0">See all package sets and details in one page.</p>
+        </div>
+        <a href="{% url 'package_list' %}" class="btn btn-outline-primary">Open Event Packages</a>
+    </div>
+</section>
+{% endblock %}

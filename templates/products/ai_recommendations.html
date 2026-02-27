@@ -1,0 +1,83 @@
+{% extends "base.html" %}
+
+{% block content %}
+<section class="mt-4 p-4 rounded-4 border bg-light">
+    <div class="row g-4 align-items-start">
+        <div class="col-lg-6">
+            <span class="badge rounded-pill" style="background:#c4942a;">Powered by AI</span>
+            <h2 class="mt-2 mb-3">Smart Recommendations Just for You</h2>
+            <p class="text-muted">
+                Our intelligent system analyzes seasonal trends, your order history, and popular choices to suggest
+                the perfect cake and event package for your special occasion.
+            </p>
+            <ul class="list-unstyled text-muted">
+                <li class="mb-2">Seasonal trends (Christmas, Valentine's, Summer)</li>
+                <li class="mb-2">Based on your previous orders</li>
+                <li>Popular items and trending designs</li>
+            </ul>
+            <a href="{% url 'package_list' %}" class="btn rounded-pill mt-3 px-4" style="background:#c4942a;color:#fff;font-weight:600;">
+                Try AI Recommendations
+            </a>
+        </div>
+
+        <div class="col-lg-6">
+            <div class="card border-0 shadow-sm rounded-4">
+                <div class="card-body p-4">
+                    <h3 class="h4 mb-3 text-center">Recommended for {{ month }}</h3>
+                    {% for rec in recommendations %}
+                    <div class="d-flex align-items-center py-2 {% if not forloop.last %}border-bottom{% endif %}">
+                        <div class="me-3 rounded bg-light d-flex align-items-center justify-content-center" style="width:64px;height:64px;">
+                            {% if rec.package.image %}
+                            <img src="{{ rec.package.image.url }}" alt="{{ rec.package.name }}" style="width:64px;height:64px;object-fit:cover;border-radius:8px;">
+                            {% else %}
+                            <span class="text-muted small">Img</span>
+                            {% endif %}
+                        </div>
+                        <div class="flex-grow-1">
+                            <div class="fw-semibold">{{ rec.package.name }}</div>
+                            <div class="small text-muted">{{ rec.match_score }}% match with your preferences</div>
+                        </div>
+                        <div class="fw-semibold" style="color:#b27d15;">P{{ rec.package.base_price }}</div>
+                    </div>
+                    {% empty %}
+                    <p class="text-muted mb-0">No recommendations available yet.</p>
+                    {% endfor %}
+                </div>
+            </div>
+        </div>
+    </div>
+</section>
+
+<section class="mt-5">
+    <div class="text-center">
+        <h2 style="color:#b27d15;" class="fw-bold">Sweet Memories</h2>
+        <p class="text-muted">What our customers say about us</p>
+    </div>
+    <div class="row g-3 mt-2">
+        <div class="col-md-4">
+            <div class="card h-100 border-0 shadow-sm rounded-4">
+                <div class="card-body">
+                    <div class="mb-2" style="color:#b27d15;">★★★★★</div>
+                    <p class="text-muted mb-0">The AI recommendation suggested the perfect cake for our birthday party.</p>
+                </div>
+            </div>
+        </div>
+        <div class="col-md-4">
+            <div class="card h-100 border-0 shadow-sm rounded-4">
+                <div class="card-body">
+                    <div class="mb-2" style="color:#b27d15;">★★★★★</div>
+                    <p class="text-muted mb-0">I loved the order tracking flow. Everything was clear and on time.</p>
+                </div>
+            </div>
+        </div>
+        <div class="col-md-4">
+            <div class="card h-100 border-0 shadow-sm rounded-4">
+                <div class="card-body">
+                    <div class="mb-2" style="color:#b27d15;">★★★★★</div>
+                    <p class="text-muted mb-0">The customization and package suggestions made planning much easier.</p>
+                </div>
+            </div>
+        </div>
+    </div>
+</section>
+{% endblock %}

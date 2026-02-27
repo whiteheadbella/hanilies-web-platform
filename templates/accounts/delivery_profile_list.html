@@ -1,0 +1,20 @@
+{% extends "base.html" %}
+{% block content %}
+  <h2>My Delivery Profiles</h2>
+  <a href="{% url 'add_delivery_profile' %}" class="btn btn-primary mb-3">Add New Address</a>
+  <ul class="list-group">
+    {% for profile in delivery_profiles %}
+      <li class="list-group-item">
+        <strong>{{ profile.full_name }}</strong><br>
+        {{ profile.house_no }}, {{ profile.street }}, {{ profile.barangay }}, {{ profile.city }}, {{ profile.province }}<br>
+        {% if profile.landmark %}Landmark: {{ profile.landmark }}<br>{% endif %}
+        Phone: {{ profile.phone }}<br>
+        {% if profile.is_default %}<span class="badge bg-success">Default</span>{% endif %}
+        <!-- Example Edit button (implement edit view if needed) -->
+        <!-- <a href="#" class="btn btn-sm btn-secondary mt-2">Edit</a> -->
+      </li>
+    {% empty %}
+      <li class="list-group-item">No delivery profiles found.</li>
+    {% endfor %}
+  </ul>
+{% endblock %}

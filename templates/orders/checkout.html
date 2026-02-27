@@ -1,0 +1,20 @@
+{% extends "base.html" %}
+
+{% block content %}
+<div class="row justify-content-center mt-4">
+    <div class="col-lg-8">
+        <div class="card shadow-sm">
+            <div class="card-body">
+                <h3>Checkout Booking</h3>
+                <p class="text-muted">Complete booking details for your customized cake. Event date must be at least 3 days ahead.</p>
+                <p><strong>Customization Price:</strong> P{{ customization.price }}</p>
+                <form method="post">
+                    {% csrf_token %}
+                    {{ form.as_p }}
+                    <button type="submit" class="btn btn-primary">Create Order</button>
+                </form>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}

@@ -1,0 +1,83 @@
+{% extends "base.html" %}
+
+{% block content %}
+<div class="container mt-4">
+    <div class="d-flex align-items-center justify-content-between mb-3">
+        <h2 class="h4 mb-0">Accounts Control Panel</h2>
+        <span class="badge bg-primary">Manager Access</span>
+    </div>
+
+    <ul class="nav nav-tabs" id="accountsTabs" role="tablist">
+        <li class="nav-item" role="presentation">
+            <button class="nav-link active" id="manager-tab" data-bs-toggle="tab" data-bs-target="#manager-pane" type="button" role="tab" aria-controls="manager-pane" aria-selected="true">
+                <i class="bi bi-speedometer2 me-1"></i>Manager Dashboard
+            </button>
+        </li>
+        <li class="nav-item" role="presentation">
+            <button class="nav-link" id="schedule-tab" data-bs-toggle="tab" data-bs-target="#schedule-pane" type="button" role="tab" aria-controls="schedule-pane" aria-selected="false">
+                <i class="bi bi-calendar-week me-1"></i>Scheduling
+            </button>
+        </li>
+        <li class="nav-item" role="presentation">
+            <button class="nav-link" id="audit-tab" data-bs-toggle="tab" data-bs-target="#audit-pane" type="button" role="tab" aria-controls="audit-pane" aria-selected="false">
+                <i class="bi bi-journal-check me-1"></i>Audit
+            </button>
+        </li>
+        <li class="nav-item" role="presentation">
+            <button class="nav-link" id="admin-tab" data-bs-toggle="tab" data-bs-target="#admin-pane" type="button" role="tab" aria-controls="admin-pane" aria-selected="false">
+                <i class="bi bi-shield-lock me-1"></i>Admin
+            </button>
+        </li>
+    </ul>
+
+    <div class="tab-content border border-top-0 rounded-bottom p-4 bg-white" id="accountsTabContent">
+        <div class="tab-pane fade show active" id="manager-pane" role="tabpanel" aria-labelledby="manager-tab">
+            <h3 class="h5">Manager Dashboard</h3>
+            <p class="text-muted mb-3">Monitor operations, orders, and overall business status.</p>
+            <div class="d-flex gap-2">
+                <a class="btn btn-primary btn-sm" href="{% url 'manager_dashboard' %}">Open Manager Dashboard</a>
+                <a class="btn btn-success btn-sm" href="{% url 'accounts_dashboard' %}">
+                    <i class="bi bi-arrow-left me-1"></i>Back
+                </a>
+            </div>
+        </div>
+        <div class="tab-pane fade" id="schedule-pane" role="tabpanel" aria-labelledby="schedule-tab">
+            <h3 class="h5">Scheduling</h3>
+            <p class="text-muted mb-3">Manage production and delivery schedules.</p>
+            <div class="d-flex gap-2">
+                <a class="btn btn-primary btn-sm" href="{% url 'schedule_list' %}">Open Scheduling</a>
+                <a class="btn btn-success btn-sm" href="{% url 'accounts_dashboard' %}">
+                    <i class="bi bi-arrow-left me-1"></i>Back
+                </a>
+            </div>
+        </div>
+        <div class="tab-pane fade" id="audit-pane" role="tabpanel" aria-labelledby="audit-tab">
+            <h3 class="h5">Audit Logs</h3>
+            <p class="text-muted mb-3">Review user actions and system activity history.</p>
+            <div class="d-flex gap-2">
+                <a class="btn btn-primary btn-sm" href="{% url 'audit_logs' %}">Open Audit Logs</a>
+                <a class="btn btn-success btn-sm" href="{% url 'accounts_dashboard' %}">
+                    <i class="bi bi-arrow-left me-1"></i>Back
+                </a>
+            </div>
+        </div>
+        <div class="tab-pane fade" id="admin-pane" role="tabpanel" aria-labelledby="admin-tab">
+            <h3 class="h5">Admin Panel</h3>
+            {% if can_open_admin %}
+            <p class="text-muted mb-3">Open the Django admin site for full system administration.</p>
+            <div class="d-flex gap-2">
+                <a class="btn btn-primary btn-sm" href="/admin/">Open Admin Panel</a>
+                <a class="btn btn-success btn-sm" href="{% url 'accounts_dashboard' %}">
+                    <i class="bi bi-arrow-left me-1"></i>Back
+                </a>
+            </div>
+            {% else %}
+            <p class="text-muted mb-0">Your account does not have admin panel access.</p>
+            <a class="btn btn-success btn-sm mt-2" href="{% url 'accounts_dashboard' %}">
+                <i class="bi bi-arrow-left me-1"></i>Back
+            </a>
+            {% endif %}
+        </div>
+    </div>
+</div>
+{% endblock %}

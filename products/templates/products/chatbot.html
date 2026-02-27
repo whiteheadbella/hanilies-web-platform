@@ -1,0 +1,48 @@
+{% extends "base.html" %}
+
+{% block content %}
+<h3 class="mt-4">Package Assistant Chatbot</h3>
+<div class="card shadow-sm mt-3">
+    <div class="card-body">
+        <div id="chatbox" class="border rounded p-3 mb-3" style="height: 320px; overflow-y: auto;">
+            <div><strong>Bot:</strong> Ask me about event packages, price range, and booking rules.</div>
+        </div>
+        <div class="input-group">
+            <input id="msg" type="text" class="form-control" placeholder="Type your question...">
+            <button id="sendBtn" class="btn btn-primary" type="button">Send</button>
+        </div>
+    </div>
+</div>
+<script>
+const chatbox = document.getElementById("chatbox");
+const input = document.getElementById("msg");
+const sendBtn = document.getElementById("sendBtn");
+
+function addLine(who, text) {
+  const line = document.createElement("div");
+  line.innerHTML = "<strong>" + who + ":</strong> " + text;
+  chatbox.appendChild(line);
+  chatbox.scrollTop = chatbox.scrollHeight;
+}
+
+async function sendMessage() {
+  const question = input.value.trim();
+  if (!question) return;
+  addLine("You", question);
+  input.value = "";
+
+  const res = await fetch("{% url 'chatbot_api' %}", {
+    method: "POST",
+    headers: {"Content-Type": "application/json"},
+    body: JSON.stringify({question})
+  });
+  const data = await res.json();
+  addLine("Bot", data.answer || "No answer.");
+}
+
+sendBtn.addEventListener("click", sendMessage);
+input.addEventListener("keydown", (e) => {
+  if (e.key === "Enter") sendMessage();
+});
+</script>
+{% endblock %}

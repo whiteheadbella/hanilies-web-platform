@@ -1,0 +1,118 @@
+{% extends "base.html" %}
+
+{% block content %}
+<h3 class="mt-4">Checkout Cart</h3>
+<div class="row g-4 mt-1">
+    <div class="col-lg-7">
+        <div class="card shadow-sm">
+            <div class="card-body">
+                <h5>Booking Details</h5>
+                <p class="text-muted">Event date must be at least 3 days before your event.</p>
+                {% if confirmed_booking %}
+                <div class="alert alert-success py-2">
+                    Order #{{ confirmed_booking.order.id }} is confirmed.
+                </div>
+                {% endif %}
+                <form method="post">
+                    {% csrf_token %}
+                    {{ form.as_p }}
+                    <div class="d-flex flex-wrap gap-2">
+                        {% if confirmed_booking %}
+                        <button class="btn btn-primary" type="button" disabled>Confirm Order</button>
+                        <a class="btn btn-success" href="{% url 'payment_create' confirmed_booking.id %}">Pay Now</a>
+                        {% else %}
+                        <button class="btn btn-primary" type="submit">Confirm Order</button>
+                        <button class="btn btn-success" type="button" disabled>Pay Now</button>
+                        {% endif %}
+                        <a class="btn btn-outline-secondary" href="{% url 'cart_view' %}">Back to Cart</a>
+                    </div>
+                </form>
+            </div>
+        </div>
+    </div>
+    <div class="col-lg-5">
+        <div class="card shadow-sm">
+            <div class="card-body">
+                <h5>Order Summary</h5>
+                <ul class="list-group list-group-flush mb-3">
+                    {% for item in items %}
+                    <li class="list-group-item">
+                        <div class="d-flex justify-content-between">
+                            <span>
+                                {% if item.package %}{{ item.package.name }}{% endif %}
+                                {% if item.customization %}Customized Cake{% endif %}
+                                {% if item.cake and not item.customization %}{{ item.cake.name }}{% endif %}
+                                x{{ item.quantity }}
+                            </span>
+                            <span>P{{ item.line_total }}</span>
+                        </div>
+
+                        {% if item.package and item.package_inclusion_snapshot %}
+                        <div class="small text-muted mt-1">Selected inclusions:</div>
+                        <ul class="small ps-3 mb-1">
+                            {% for inclusion in item.package_inclusion_snapshot %}
+                            <li>
+                                {{ inclusion.quantity }}
+                                {% if inclusion.unit %} {{ inclusion.unit }}{% endif %}
+                                {{ inclusion.item_name }}
+                                {% if inclusion.item_group %}<span class="text-muted">({{ inclusion.item_group }})</span>{% endif %}
+                                {% if inclusion.unit_price %}<span class="text-muted"> @ P{{ inclusion.unit_price }}</span>{% endif %}
+                                {% if inclusion.line_total %}<span class="text-muted"> = P{{ inclusion.line_total }}</span>{% endif %}
+                            </li>
+                            {% endfor %}
+                        </ul>
+                        {% elif item.package and item.package.items.all %}
+                        <div class="small text-muted mt-1">Package items:</div>
+                        <ul class="small ps-3 mb-1">
+                            {% for package_item in item.package.items.all %}
+                            <li>
+                                {% if package_item.quantity %}{{ package_item.quantity }}{% endif %}
+                                {% if package_item.unit %} {{ package_item.unit }}{% endif %}
+                                {{ package_item.item_name }}
+                            </li>
+                            {% endfor %}
+                        </ul>
+                        {% endif %}
+
+                        {% if item.package_add_ons.all %}
+                        <div class="small text-muted">Selected add-ons:</div>
+                        <ul class="small ps-3 mb-1">
+                            {% for addon in item.package_add_ons.all %}
+                            <li>{{ addon.name }} (P{{ addon.price }})</li>
+                            {% endfor %}
+                        </ul>
+                        {% endif %}
+
+                        {% if item.customization %}
+                        <ul class="small ps-3 mb-1">
+                            {% if item.customization.cake %}<li>Cake: {{ item.customization.cake.name }}</li>{% endif %}
+                            <li>Size: {{ item.customization.get_size_display }}</li>
+                            <li>Layers: {{ item.customization.get_layers_display }}</li>
+                            <li>Flavor: {{ item.customization.flavor }}</li>
+                            <li>Theme: {{ item.customization.theme }}</li>
+                            {% if item.customization.message %}<li>Message: {{ item.customization.message }}</li>{% endif %}
+                        </ul>
+                        {% if item.customization.add_ons.all %}
+                        <div class="small text-muted">Add-ons:</div>
+                        <ul class="small ps-3 mb-1">
+                            {% for addon in item.customization.add_ons.all %}
+                            <li>{{ addon.name }} (P{{ addon.price }})</li>
+                            {% endfor %}
+                        </ul>
+                        {% endif %}
+                        {% endif %}
+                    </li>
+                    {% empty %}
+                    <li class="list-group-item text-muted">No cart items. Order is already confirmed.</li>
+                    {% endfor %}
+                </ul>
+                {% if confirmed_booking %}
+                <h5>Total: P{{ confirmed_booking.order.total_amount }}</h5>
+                {% else %}
+                <h5>Total: P{{ total }}</h5>
+                {% endif %}
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}

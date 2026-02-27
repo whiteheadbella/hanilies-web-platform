@@ -1,0 +1,115 @@
+{% extends "base.html" %}
+
+{% block content %}
+<h3 class="mt-4">Cart Checkout</h3>
+<div class="card shadow-sm mt-3">
+    <div class="card-body">
+        <table class="table table-sm align-middle">
+            <thead>
+                <tr>
+                    <th>Item</th>
+                    <th>Unit Price</th>
+                    <th>Qty</th>
+                    <th>Total</th>
+                    <th>Actions</th>
+                </tr>
+            </thead>
+            <tbody>
+                {% for item in items %}
+                <tr>
+                    <td>
+                        {% if item.package %}
+                            <div class="fw-semibold">{{ item.package.name }}</div>
+                            {% if item.package_inclusion_snapshot %}
+                            <div class="small text-muted">Selected inclusions:</div>
+                            <ul class="small mb-1 ps-3">
+                                {% for inclusion in item.package_inclusion_snapshot %}
+                                <li>
+                                    {{ inclusion.quantity }}
+                                    {% if inclusion.unit %} {{ inclusion.unit }}{% endif %}
+                                    {{ inclusion.item_name }}
+                                    {% if inclusion.item_group %}<span class="text-muted">({{ inclusion.item_group }})</span>{% endif %}
+                                    {% if inclusion.unit_price %}<span class="text-muted"> @ P{{ inclusion.unit_price }}</span>{% endif %}
+                                    {% if inclusion.line_total %}<span class="text-muted"> = P{{ inclusion.line_total }}</span>{% endif %}
+                                </li>
+                                {% endfor %}
+                            </ul>
+                            {% elif item.package.items.all %}
+                            <div class="small text-muted">Package items:</div>
+                            <ul class="small mb-1 ps-3">
+                                {% for package_item in item.package.items.all %}
+                                <li>
+                                    {% if package_item.quantity %}{{ package_item.quantity }}{% endif %}
+                                    {% if package_item.unit %} {{ package_item.unit }}{% endif %}
+                                    {{ package_item.item_name }}
+                                </li>
+                                {% endfor %}
+                            </ul>
+                            {% endif %}
+                            {% if item.package_add_ons.all %}
+                            <div class="small text-muted">Selected add-ons:</div>
+                            <ul class="small mb-1 ps-3">
+                                {% for addon in item.package_add_ons.all %}
+                                <li>{{ addon.name }} (P{{ addon.price }})</li>
+                                {% endfor %}
+                            </ul>
+                            {% endif %}
+                        {% endif %}
+
+                        {% if item.customization %}
+                            <div class="fw-semibold">Customized Cake</div>
+                            <ul class="small mb-1 ps-3">
+                                {% if item.customization.cake %}<li>Cake: {{ item.customization.cake.name }}</li>{% endif %}
+                                <li>Size: {{ item.customization.get_size_display }}</li>
+                                <li>Layers: {{ item.customization.get_layers_display }}</li>
+                                <li>Flavor: {{ item.customization.flavor }}</li>
+                                <li>Theme: {{ item.customization.theme }}</li>
+                                {% if item.customization.message %}<li>Message: {{ item.customization.message }}</li>{% endif %}
+                            </ul>
+                            {% if item.customization.add_ons.all %}
+                            <div class="small text-muted">Add-ons:</div>
+                            <ul class="small mb-1 ps-3">
+                                {% for addon in item.customization.add_ons.all %}
+                                <li>{{ addon.name }} (P{{ addon.price }})</li>
+                                {% endfor %}
+                            </ul>
+                            {% endif %}
+                        {% endif %}
+
+                        {% if item.cake and not item.customization %}
+                            <div class="fw-semibold">{{ item.cake.name }}</div>
+                        {% endif %}
+                    </td>
+                    <td>P{{ item.unit_price }}</td>
+                    <td>
+                        <form method="post" class="d-flex gap-2">
+                            {% csrf_token %}
+                            <input type="hidden" name="item_id" value="{{ item.id }}">
+                            <input type="hidden" name="action" value="update">
+                            <input type="number" min="1" name="quantity" value="{{ item.quantity }}" class="form-control form-control-sm" style="width:90px;">
+                            <button class="btn btn-sm btn-outline-primary" type="submit">Update</button>
+                        </form>
+                    </td>
+                    <td>P{{ item.line_total }}</td>
+                    <td>
+                        <form method="post">
+                            {% csrf_token %}
+                            <input type="hidden" name="item_id" value="{{ item.id }}">
+                            <input type="hidden" name="action" value="delete">
+                            <button class="btn btn-sm btn-outline-danger" type="submit">Remove</button>
+                        </form>
+                    </td>
+                </tr>
+                {% empty %}
+                <tr><td colspan="5" class="text-muted">Your cart is empty.</td></tr>
+                {% endfor %}
+            </tbody>
+        </table>
+
+        <div class="d-flex justify-content-between align-items-center">
+            <h5 class="mb-0">Total: P{{ total }}</h5>
+            <a href="{% url 'checkout_cart' %}" class="btn btn-success">Proceed to Cart Checkout</a>
+        </div>
+    </div>
+</div>
+{% endblock %}

@@ -1,0 +1,20 @@
+{% extends "base.html" %}
+
+{% block content %}
+<div class="row justify-content-center mt-4">
+    <div class="col-lg-6">
+        <div class="card shadow-sm">
+            <div class="card-body">
+                <h3>Payment</h3>
+                <p><strong>Order #{{ booking.order.id }}</strong></p>
+                <p>Total: P{{ booking.order.total_amount }}</p>
+                <form method="post">
+                    {% csrf_token %}
+                    {{ form.as_p }}
+                    <button class="btn btn-primary" type="submit">Pay Now</button>
+                </form>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}

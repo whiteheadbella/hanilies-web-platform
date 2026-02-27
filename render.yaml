@@ -1,0 +1,45 @@
+services:
+  - type: web
+    name: hanilies-cakeshoppe-event
+    runtime: python
+    plan: free
+    autoDeploy: true
+    buildCommand: bash build.sh
+    startCommand: gunicorn hanilies_cakeshoppe_event.wsgi:application --bind 0.0.0.0:$PORT
+    envVars:
+      - key: PYTHON_VERSION
+        value: 3.11.11
+      - key: DEBUG
+        value: "False"
+      - key: SECRET_KEY
+        generateValue: true
+      - key: ALLOWED_HOSTS
+        value: .onrender.com
+      - key: CSRF_TRUSTED_ORIGINS
+        value: https://*.onrender.com
+      - key: DB_NAME
+        fromDatabase:
+          name: hanilies-db
+          property: database
+      - key: DB_USER
+        fromDatabase:
+          name: hanilies-db
+          property: user
+      - key: DB_PASSWORD
+        fromDatabase:
+          name: hanilies-db
+          property: password
+      - key: DB_HOST
+        fromDatabase:
+          name: hanilies-db
+          property: host
+      - key: DB_PORT
+        fromDatabase:
+          name: hanilies-db
+          property: port
+
+databases:
+  - name: hanilies-db
+    plan: free
+    databaseName: hanilies
+    user: hanilies_user

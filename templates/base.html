@@ -1,0 +1,267 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>Hanilies Cakeshoppe &amp; Event Services Management</title>
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/css/bootstrap.min.css" rel="stylesheet">
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.3/font/bootstrap-icons.min.css" rel="stylesheet">
+    <style>
+        body {
+            background: linear-gradient(180deg, #fdf1f7 0%, #f9e8f2 100%);
+        }
+        .site-header {
+            background: linear-gradient(120deg, #541223 0%, #6e182c 50%, #3e0d1d 100%);
+            border-bottom: 1px solid #8a3e52;
+            box-shadow: 0 6px 16px rgba(52, 10, 26, 0.28);
+            position: sticky;
+            top: 0;
+            z-index: 1030;
+        }
+        .brand-title {
+            font-size: 1.25rem;
+            font-weight: 800;
+            color: #fce9d1;
+            line-height: 1.2;
+        }
+        .brand-subtitle {
+            display: block;
+            font-size: 0.72rem;
+            font-weight: 700;
+            color: #f4d8df;
+            letter-spacing: 0.05em;
+            text-transform: uppercase;
+        }
+        .main-nav .nav-link {
+            font-size: 1.08rem;
+            font-weight: 700;
+            color: #fff6f8 !important;
+            white-space: nowrap;
+            border-radius: 0.5rem;
+            padding: 0.45rem 0.7rem !important;
+            margin: 0.1rem 0.15rem;
+            transition: background-color 0.15s ease, color 0.15s ease;
+        }
+        .main-nav .nav-link i {
+            margin-right: 0.35rem;
+            color: #fff6f8 !important;
+        }
+        .main-nav .nav-link:hover,
+        .main-nav .nav-link:focus {
+            background-color: rgba(255, 228, 234, 0.16);
+            color: #ffe9be !important;
+        }
+        .main-nav .nav-link.text-danger:hover {
+            background-color: rgba(255, 128, 128, 0.16);
+            color: #ffb9b9 !important;
+        }
+        .main-nav .nav-link.active-link {
+            background-color: rgba(255, 228, 234, 0.16);
+            color: #ffe9be !important;
+        }
+        .main-nav .brand-icon {
+            color: #ffd88a;
+        }
+        .footer-box {
+            background: linear-gradient(120deg, #541223 0%, #6e182c 50%, #3e0d1d 100%);
+            color: #fff6f8;
+            border-top: 1px solid #8a3e52;
+            box-shadow: 0 -3px 12px rgba(52, 10, 26, 0.24);
+            margin-top: 1.25rem;
+        }
+        .footer-title {
+            font-size: 1.05rem;
+            font-weight: 800;
+            margin-bottom: 0.3rem;
+            color: #fff6f8;
+        }
+        .footer-box,
+        .footer-box ol,
+        .footer-box li {
+            font-weight: 600;
+        }
+        .footer-box a {
+            color: #0d6efd;
+            font-weight: 700;
+            text-decoration: none;
+        }
+        .footer-box a:hover {
+            color: #0a58ca;
+            text-decoration: underline;
+        }
+        .footer-compact {
+            font-size: 0.96rem;
+            line-height: 1.5;
+        }
+        @media (max-width: 991.98px) {
+            .brand-subtitle {
+                display: none;
+            }
+        }
+    </style>
+</head>
+<body>
+{% if user.is_authenticated %}
+<header class="site-header">
+<nav class="navbar navbar-expand-xl navbar-light py-2 main-nav">
+    <div class="container-fluid px-3 px-lg-4">
+        <a class="navbar-brand d-flex align-items-center gap-2 me-3" href="{% url 'customer_home' %}">
+            <i class="bi bi-cake2-fill fs-4 brand-icon"></i>
+            <span class="brand-title">Hanilies Cakeshoppe<span class="brand-subtitle">Event Services Management</span></span>
+        </a>
+        <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#mainNavbar" aria-controls="mainNavbar" aria-expanded="false" aria-label="Toggle navigation">
+            <span class="navbar-toggler-icon"></span>
+        </button>
+        <div class="collapse navbar-collapse" id="mainNavbar">
+            <ul class="navbar-nav me-auto align-items-xl-center">
+                <li class="nav-item"><a class="nav-link" href="{% url 'customer_home' %}"><i class="bi bi-house-fill icon-home"></i>Home</a></li>
+                {% if is_manager_user %}
+                <li class="nav-item"><a class="nav-link" href="{% url 'accounts_dashboard' %}"><i class="bi bi-person-badge icon-accounts"></i>Accounts</a></li>
+                <li class="nav-item"><a class="nav-link" href="{% url 'gallery_manage' %}"><i class="bi bi-images icon-gallery"></i>Manage Gallery</a></li>
+                {% endif %}
+            </ul>
+            <ul class="navbar-nav ms-auto align-items-xl-center">
+                <li class="nav-item"><a class="nav-link" href="{% url 'package_list' %}"><i class="bi bi-box-seam icon-packages"></i>Event Packages</a></li>
+                <li class="nav-item"><a class="nav-link" href="{% url 'my_orders' %}"><i class="bi bi-receipt icon-orders"></i>Orders</a></li>
+                <li class="nav-item"><a class="nav-link" href="{% url 'cart_view' %}"><i class="bi bi-cart-check icon-cart"></i>Cart Checkout</a></li>
+                <li class="nav-item"><a class="nav-link" href="{% url 'customize_cake' %}"><i class="bi bi-brush icon-customization"></i>Customization</a></li>
+                <li class="nav-item"><a class="nav-link" href="{% url 'my_payments' %}"><i class="bi bi-cash-coin icon-payments"></i>Payments</a></li>
+                <li class="nav-item"><a class="nav-link" href="{% url 'my_notifications' %}"><i class="bi bi-bell icon-notifications"></i>Notifications</a></li>
+                <li class="nav-item"><a class="nav-link" href="{% url 'ai_recommendations_page' %}"><i class="bi bi-stars icon-ai"></i>AI Recommendations</a></li>
+                <li class="nav-item"><a class="nav-link text-danger" href="{% url 'logout' %}"><i class="bi bi-box-arrow-right icon-logout"></i>Logout</a></li>
+            </ul>
+        </div>
+    </div>
+</nav>
+ </header>
+{% endif %}
+
+<div class="container {% if user.is_authenticated %}mt-4{% endif %}">
+    {% if messages %}
+        {% for message in messages %}
+        <div class="alert alert-{{ message.tags|default:'info' }} mt-3">{{ message }}</div>
+        {% endfor %}
+    {% endif %}
+
+    {% block content %}
+    {% if not user.is_authenticated %}
+    <div class="row justify-content-center align-items-center vh-100">
+        <div class="col-md-6 col-lg-4">
+            <div class="card shadow-sm">
+                <div class="card-body text-center">
+                    <h3 class="mb-3">Hanilies Cakeshoppe &amp; Event Services Management</h3>
+                    <p class="text-muted">Welcome to Hanilies Cakeshoppe &amp; Event Services Management System</p>
+                    <a href="{% url 'login' %}" class="btn btn-primary w-100 mb-2">Log In</a>
+                    <a href="{% url 'register' %}" class="btn btn-outline-success w-100">Register</a>
+                    <a href="{% url 'gallery_view' %}" class="btn btn-outline-secondary w-100 mt-2">Gallery</a>
+                </div>
+            </div>
+        </div>
+    </div>
+    {% endif %}
+    {% endblock %}
+</div>
+
+{% if request.path == '/products/home/' %}
+<div id="chatWidget" style="position: fixed; right: 20px; bottom: 20px; z-index: 1050;">
+    <button id="chatToggle" class="btn btn-primary rounded-pill shadow">Chat with us</button>
+    <div
+        id="chatPanel"
+        class="card shadow"
+        style="display: none; width: 320px; margin-top: 10px; border-radius: 12px;"
+    >
+        <div class="card-header bg-primary text-white py-2">
+            Hanilies Assistant
+        </div>
+        <div id="chatMessages" class="card-body" style="height: 260px; overflow-y: auto;">
+            <div><strong>Bot:</strong> Ask me about event packages, prices, and booking rules.</div>
+        </div>
+        <div class="card-footer">
+            <div class="input-group input-group-sm">
+                <input id="chatInput" type="text" class="form-control" placeholder="Type message...">
+                <button id="chatSend" class="btn btn-primary" type="button">Send</button>
+            </div>
+        </div>
+    </div>
+</div>
+<script>
+(function () {
+  const toggleBtn = document.getElementById("chatToggle");
+  const panel = document.getElementById("chatPanel");
+  const messages = document.getElementById("chatMessages");
+  const input = document.getElementById("chatInput");
+  const sendBtn = document.getElementById("chatSend");
+
+  function addLine(who, text) {
+    const line = document.createElement("div");
+    line.innerHTML = "<strong>" + who + ":</strong> " + text;
+    messages.appendChild(line);
+    messages.scrollTop = messages.scrollHeight;
+  }
+
+  async function sendMessage() {
+    const question = input.value.trim();
+    if (!question) return;
+    addLine("You", question);
+    input.value = "";
+    try {
+      const res = await fetch("{% url 'chatbot_api' %}", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ question: question })
+      });
+      const data = await res.json();
+      addLine("Bot", data.answer || "No answer right now.");
+    } catch (err) {
+      addLine("Bot", "Sorry, I cannot connect right now.");
+    }
+  }
+
+  toggleBtn.addEventListener("click", function () {
+    panel.style.display = panel.style.display === "none" ? "block" : "none";
+  });
+  sendBtn.addEventListener("click", sendMessage);
+  input.addEventListener("keydown", function (e) {
+    if (e.key === "Enter") sendMessage();
+  });
+})();
+</script>
+{% endif %}
+
+<footer class="footer-box footer-compact">
+    <div class="container py-2">
+        <div class="row align-items-center">
+            <div class="col-md-4 mb-1">
+                <h5 class="footer-title"><i class="bi bi-info-circle me-1"></i>About Us</h5>
+                <a href="{% url 'about_page' %}">Read more about us</a>
+            </div>
+            <div class="col-md-4 mb-1">
+                <h5 class="footer-title"><i class="bi bi-geo-alt me-1"></i>Shop Location</h5>
+                <a href="{% url 'shop_location_page' %}">View shop location details</a>
+            </div>
+            <div class="col-md-4 mb-1">
+                <h5 class="footer-title"><i class="bi bi-list-check me-1"></i>How To Order</h5>
+                <ol class="small ps-3 mb-2">
+                    <li>
+                        {% if user.is_authenticated %}
+                        Account ready.
+                        {% else %}
+                        <a href="{% url 'register' %}">Create account</a> then <a href="{% url 'login' %}">log in</a>.
+                        {% endif %}
+                    </li>
+                    <li>Browse <a href="{% url 'package_list' %}">Event Packages</a> or <a href="{% url 'gallery_view' %}">Gallery</a>.</li>
+                    <li>Use <a href="{% url 'customize_cake' %}">Cake Customization</a> and click <strong>Order Now</strong> or <strong>Add to Cart</strong>.</li>
+                    <li>Open <a href="{% url 'cart_view' %}">Cart Checkout</a>, set booking details (event date must be at least 3 days ahead).</li>
+                    <li>Complete payment in <a href="{% url 'my_payments' %}">Payments</a>.</li>
+                    <li>Track updates in <a href="{% url 'my_orders' %}">Orders</a> and <a href="{% url 'my_notifications' %}">Notifications</a>.</li>
+                </ol>
+                <a href="https://www.facebook.com/hanilies.cakeshoppe" target="_blank" rel="noopener noreferrer"><i class="bi bi-facebook me-1"></i>Facebook: Hanilie's Cakeshoppe</a>
+            </div>
+        </div>
+        <hr class="my-1">
+        <div class="text-center small">Copyright 2026 Hanilies Cakeshoppe. All rights reserved.</div>
+    </div>
+</footer>
+<script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/js/bootstrap.bundle.min.js"></script>
+</body>
+</html>
+

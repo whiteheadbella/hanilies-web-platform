@@ -1,0 +1,37 @@
+{% extends "base.html" %}
+{% block content %}
+
+<div class="d-flex justify-content-between align-items-center mb-3">
+  <h3>My Delivery Profiles</h3>
+  <a class="btn btn-success" href="{% url 'add_delivery_profile' %}">Add New</a>
+</div>
+
+{% if profiles %}
+  <div class="row g-3">
+    {% for p in profiles %}
+      <div class="col-md-6">
+        <div class="card shadow-sm {% if p.is_default %}border-success{% endif %}">
+          <div class="card-body">
+            <h5 class="mb-1">{{ p.full_name }} {% if p.is_default %}<span class="badge bg-success">Default</span>{% endif %}</h5>
+            <div class="text-muted">{{ p.phone }}</div>
+            <hr>
+            <div>
+              {{ p.house_no }} {{ p.street }}, {{ p.barangay }}<br>
+              {{ p.city }}, {{ p.province }}<br>
+              {% if p.landmark %}<small class="text-muted">Landmark: {{ p.landmark }}</small>{% endif %}
+            </div>
+            <div class="mt-3 d-flex gap-2">
+              <a class="btn btn-sm btn-outline-primary" href="{% url 'edit_delivery_profile' p.id %}">Edit</a>
+              <a class="btn btn-sm btn-outline-danger" href="{% url 'delete_delivery_profile' p.id %}">Delete</a>
+            </div>
+          </div>
+        </div>
+      </div>
+    {% endfor %}
+  </div>
+{% else %}
+  <div class="alert alert-info">No delivery profiles yet. Add your address to speed up ordering.</div>
+{% endif %}
+
+{% endblock %}
+

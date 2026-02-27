@@ -1,0 +1,26 @@
+# Python
+__pycache__/
+*.py[cod]
+*$py.class
+
+# Virtual environments
+venv/
+.venv/
+env/
+
+# Django
+*.log
+db.sqlite3
+media/
+staticfiles/
+
+# Environment variables
+.env
+*.env
+hanilies_cakeshoppe_event/.env
+
+# Editor/OS
+.vscode/
+.idea/
+.DS_Store
+Thumbs.db
