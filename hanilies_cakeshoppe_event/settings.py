@@ -34,11 +34,19 @@ allowed_hosts_raw = config('ALLOWED_HOSTS', default='')
 if not allowed_hosts_raw:
     allowed_hosts_raw = config('ALLOWED_HOST', default='127.0.0.1,localhost')
 
-ALLOWED_HOSTS = [host.strip() for host in allowed_hosts_raw.split(',') if host.strip()]
+ALLOWED_HOSTS = [host.strip()
+                 for host in allowed_hosts_raw.split(',') if host.strip()]
 
 render_external_hostname = os.environ.get('RENDER_EXTERNAL_HOSTNAME')
 if render_external_hostname and render_external_hostname not in ALLOWED_HOSTS:
     ALLOWED_HOSTS.append(render_external_hostname)
+
+CLOUDINARY_CLOUD_NAME = config('CLOUDINARY_CLOUD_NAME', default='')
+CLOUDINARY_API_KEY = config('CLOUDINARY_API_KEY', default='')
+CLOUDINARY_API_SECRET = config('CLOUDINARY_API_SECRET', default='')
+USE_CLOUDINARY_MEDIA = all(
+    [CLOUDINARY_CLOUD_NAME, CLOUDINARY_API_KEY, CLOUDINARY_API_SECRET]
+)
 
 
 # Application definition
@@ -62,6 +70,20 @@ INSTALLED_APPS = [
 
 
 ]
+
+if USE_CLOUDINARY_MEDIA:
+    INSTALLED_APPS += [
+        'cloudinary',
+        'cloudinary_storage',
+    ]
+
+    CLOUDINARY_STORAGE = {
+        'CLOUD_NAME': CLOUDINARY_CLOUD_NAME,
+        'API_KEY': CLOUDINARY_API_KEY,
+        'API_SECRET': CLOUDINARY_API_SECRET,
+    }
+
+    DEFAULT_FILE_STORAGE = 'cloudinary_storage.storage.MediaCloudinaryStorage'
 
 MIDDLEWARE = [
     'django.middleware.security.SecurityMiddleware',
