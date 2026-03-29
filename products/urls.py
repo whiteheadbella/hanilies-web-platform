@@ -13,6 +13,7 @@ from .views import (
     product_photos_view,
     gallery_view,
     package_list,
+    recommendation_debug_panel,
     shop_location_page,
 )
 
@@ -34,4 +35,6 @@ urlpatterns = [
     path("shop-location/", shop_location_page, name="shop_location_page"),
     path("ai-recommendations/", ai_recommendations_page,
          name="ai_recommendations_page"),
+    path("ai-recommendations/debug/", recommendation_debug_panel,
+         name="recommendation_debug_panel"),
 ]

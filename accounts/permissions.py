@@ -2,7 +2,11 @@ from django.core.exceptions import PermissionDenied
 
 
 def is_manager(user):
-    return user.is_authenticated and (user.is_superuser or user.groups.filter(name="Manager").exists())
+    return user.is_authenticated and (
+        user.is_superuser
+        or user.is_staff
+        or user.groups.filter(name="Manager").exists()
+    )
 
 
 def is_customer(user):

@@ -1,0 +1,125 @@
+{% extends "base.html" %}
+
+{% block content %}
+<section class="mt-4 p-4 rounded-4 border bg-light">
+    <div class="d-flex flex-wrap justify-content-between align-items-center gap-3 mb-3">
+        <div>
+            <span class="badge rounded-pill" style="background:#6b7280;">Manager Only</span>
+            <h2 class="mt-2 mb-1">Recommendation Debug Panel</h2>
+            <p class="text-muted mb-0">Month: {{ month }} | Occasions: {{ month_occasions|join:", " }}</p>
+        </div>
+        <a href="{% url 'ai_recommendations_page' %}" class="btn btn-outline-secondary rounded-pill">Back to AI Recommendations</a>
+    </div>
+
+    <form method="get" class="row g-2 align-items-end mb-3">
+        <div class="col-md-6 col-lg-4">
+            <label class="form-label fw-semibold">Debug as Customer</label>
+            <select name="user_id" class="form-select">
+                <option value="">{{ selected_user.username }}</option>
+                {% for user in user_candidates %}
+                <option value="{{ user.id }}" {% if user.id == selected_user.id %}selected{% endif %}>{{ user.username }}</option>
+                {% endfor %}
+            </select>
+        </div>
+        <div class="col-auto">
+            <button type="submit" class="btn rounded-pill px-4" style="background:#c4942a;color:#fff;font-weight:600;">Run Debug</button>
+        </div>
+    </form>
+
+    <div class="alert alert-secondary mb-0">
+        <strong>Scoring components:</strong> History, Bestseller, Seasonal, Budget, and Preference Match.
+    </div>
+</section>
+
+<section class="mt-4">
+    <div class="card border-0 shadow-sm rounded-4">
+        <div class="card-body p-4">
+            <h3 class="h5 mb-3">Package Recommendation Score Breakdown</h3>
+            <div class="table-responsive">
+                <table class="table table-sm align-middle">
+                    <thead>
+                        <tr>
+                            <th>Package</th>
+                            <th>Category</th>
+                            <th class="text-end">Price</th>
+                            <th class="text-end">History</th>
+                            <th class="text-end">Bestseller</th>
+                            <th class="text-end">Seasonal</th>
+                            <th class="text-end">Category</th>
+                            <th class="text-end">Budget</th>
+                            <th class="text-end">Raw</th>
+                            <th class="text-end">Match %</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        {% for row in package_rows %}
+                        <tr>
+                            <td>{{ row.name }}</td>
+                            <td>{{ row.category }}</td>
+                            <td class="text-end">P{{ row.price }}</td>
+                            <td class="text-end">{{ row.history_score }}</td>
+                            <td class="text-end">{{ row.bestseller_score }}</td>
+                            <td class="text-end">{{ row.seasonal_score }}</td>
+                            <td class="text-end">{{ row.category_score }}</td>
+                            <td class="text-end">{{ row.budget_score }}</td>
+                            <td class="text-end fw-semibold">{{ row.raw_score }}</td>
+                            <td class="text-end"><span class="badge" style="background:#c4942a;color:#fff;">{{ row.match_score }}%</span></td>
+                        </tr>
+                        {% empty %}
+                        <tr>
+                            <td colspan="10" class="text-muted">No package data available.</td>
+                        </tr>
+                        {% endfor %}
+                    </tbody>
+                </table>
+            </div>
+        </div>
+    </div>
+</section>
+
+<section class="mt-4">
+    <div class="card border-0 shadow-sm rounded-4">
+        <div class="card-body p-4">
+            <h3 class="h5 mb-3">Cake Recommendation Score Breakdown</h3>
+            <div class="table-responsive">
+                <table class="table table-sm align-middle">
+                    <thead>
+                        <tr>
+                            <th>Cake Design</th>
+                            <th>Flavor</th>
+                            <th class="text-end">Price</th>
+                            <th class="text-end">History</th>
+                            <th class="text-end">Bestseller</th>
+                            <th class="text-end">Seasonal</th>
+                            <th class="text-end">Flavor</th>
+                            <th class="text-end">Budget</th>
+                            <th class="text-end">Raw</th>
+                            <th class="text-end">Match %</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        {% for row in cake_rows %}
+                        <tr>
+                            <td>{{ row.name }}</td>
+                            <td>{{ row.flavor }}</td>
+                            <td class="text-end">P{{ row.price }}</td>
+                            <td class="text-end">{{ row.history_score }}</td>
+                            <td class="text-end">{{ row.bestseller_score }}</td>
+                            <td class="text-end">{{ row.seasonal_score }}</td>
+                            <td class="text-end">{{ row.flavor_score }}</td>
+                            <td class="text-end">{{ row.budget_score }}</td>
+                            <td class="text-end fw-semibold">{{ row.raw_score }}</td>
+                            <td class="text-end"><span class="badge" style="background:#c4942a;color:#fff;">{{ row.match_score }}%</span></td>
+                        </tr>
+                        {% empty %}
+                        <tr>
+                            <td colspan="10" class="text-muted">No cake data available.</td>
+                        </tr>
+                        {% endfor %}
+                    </tbody>
+                </table>
+            </div>
+        </div>
+    </div>
+</section>
+{% endblock %}

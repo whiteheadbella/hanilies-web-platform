@@ -1,0 +1,42 @@
+{% extends "base.html" %}
+
+{% block content %}
+<div class="container mt-4">
+    <div class="d-flex align-items-center justify-content-between mb-3">
+        <h2 class="h4 mb-0">My Account</h2>
+        {% if is_manager_user %}
+        <a class="btn btn-outline-primary btn-sm" href="{% url 'accounts_dashboard' %}">Manager Panel</a>
+        {% endif %}
+    </div>
+
+    <div class="row g-3">
+        <div class="col-md-6">
+            <div class="card shadow-sm h-100">
+                <div class="card-body">
+                    <h5 class="card-title">Delivery Profiles</h5>
+                    <p class="text-muted mb-3">Manage your saved addresses for faster checkout.</p>
+                    <p class="mb-3"><strong>Total Profiles:</strong> {{ profile_count }}</p>
+                    <div class="d-flex gap-2">
+                        <a class="btn btn-primary btn-sm" href="{% url 'delivery_profiles' %}">View Profiles</a>
+                        <a class="btn btn-success btn-sm" href="{% url 'add_delivery_profile' %}">Add Profile</a>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <div class="col-md-6">
+            <div class="card shadow-sm h-100">
+                <div class="card-body">
+                    <h5 class="card-title">Order and Payment</h5>
+                    <p class="text-muted mb-3">Track your transactions and payment history.</p>
+                    <div class="d-flex gap-2 flex-wrap">
+                        <a class="btn btn-outline-primary btn-sm" href="{% url 'my_orders' %}">My Orders</a>
+                        <a class="btn btn-outline-success btn-sm" href="{% url 'my_payments' %}">My Payments</a>
+                        <a class="btn btn-outline-secondary btn-sm" href="{% url 'my_notifications' %}">Notifications</a>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}

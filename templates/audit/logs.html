@@ -16,7 +16,13 @@
                 <tr>
                     <td>{{ log.timestamp|date:"Y-m-d H:i:s" }}</td>
                     <td>{{ log.user.username }}</td>
-                    <td>{{ log.action }}</td>
+                    <td>
+                        <span>{{ log.action }}</span>
+                        <form method="post" action="{% url 'delete_audit_log' log.id %}" class="d-inline ms-2">
+                            {% csrf_token %}
+                            <button type="submit" class="btn btn-outline-danger btn-sm py-0 px-2" onclick="return confirm('Delete this audit log?');">Delete</button>
+                        </form>
+                    </td>
                 </tr>
                 {% empty %}
                 <tr><td colspan="3" class="text-muted">No logs.</td></tr>

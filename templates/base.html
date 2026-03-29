@@ -114,8 +114,8 @@
         <div class="collapse navbar-collapse" id="mainNavbar">
             <ul class="navbar-nav me-auto align-items-xl-center">
                 <li class="nav-item"><a class="nav-link" href="{% url 'customer_home' %}"><i class="bi bi-house-fill icon-home"></i>Home</a></li>
+                <li class="nav-item"><a class="nav-link" href="{% url 'accounts_home' %}"><i class="bi bi-person-badge icon-accounts"></i>Accounts</a></li>
                 {% if is_manager_user %}
-                <li class="nav-item"><a class="nav-link" href="{% url 'accounts_dashboard' %}"><i class="bi bi-person-badge icon-accounts"></i>Accounts</a></li>
                 <li class="nav-item"><a class="nav-link" href="{% url 'gallery_manage' %}"><i class="bi bi-images icon-gallery"></i>Manage Gallery</a></li>
                 {% endif %}
             </ul>

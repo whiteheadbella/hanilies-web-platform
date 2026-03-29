@@ -1,8 +1,7 @@
 from decimal import Decimal
-
 from django.contrib import messages
 from django.contrib.auth.decorators import login_required
-from django.db.models import F
+from django.db.models import F, Sum
 from django.shortcuts import get_object_or_404, redirect, render
 from django.utils import timezone
 
@@ -324,6 +323,34 @@ def manager_dashboard(request):
     payments_count = Payment.objects.count()
     notifications_count = CustomerNotification.objects.count()
 
+    total_revenue = Payment.objects.filter(payment_status="PAID").aggregate(
+        total=Sum("amount")
+    )["total"] or Decimal("0.00")
+
+    today = timezone.localdate()
+    orders_this_month = Order.objects.filter(
+        created_at__year=today.year,
+        created_at__month=today.month,
+    ).count()
+    revenue_this_month = Payment.objects.filter(
+        payment_status="PAID",
+        date_paid__year=today.year,
+        date_paid__month=today.month,
+    ).aggregate(total=Sum("amount"))["total"] or Decimal("0.00")
+
+    completion_rate = round(
+        (completed_orders / total_orders) * 100, 2
+    ) if total_orders else 0
+
+    today_sales_total = Payment.objects.filter(
+        payment_status="PAID",
+        date_paid__date=today,
+    ).aggregate(total=Sum("amount"))["total"] or Decimal("0.00")
+    today_sales_count = Payment.objects.filter(
+        payment_status="PAID",
+        date_paid__date=today,
+    ).count()
+
     recent_orders = Order.objects.select_related(
         "customer").order_by("-created_at")[:10]
     context = {
@@ -338,6 +365,13 @@ def manager_dashboard(request):
         "payments_count": payments_count,
         "notifications_count": notifications_count,
         "recent_orders": recent_orders,
+        "total_revenue": total_revenue,
+        "orders_this_month": orders_this_month,
+        "revenue_this_month": revenue_this_month,
+        "completion_rate": completion_rate,
+        "today_sales_date": today,
+        "today_sales_total": today_sales_total,
+        "today_sales_count": today_sales_count,
     }
     return render(request, "manager/dashboard.html", context)
 

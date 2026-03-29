@@ -45,6 +45,23 @@ def logout_view(request):
 
 
 @login_required
+def accounts_hub(request):
+    if is_manager(request.user):
+        return redirect("accounts_dashboard")
+    return redirect("my_account")
+
+
+@login_required
+def my_account_dashboard(request):
+    profile_count = DeliveryProfile.objects.filter(user=request.user).count()
+    return render(
+        request,
+        "accounts/my_account.html",
+        {"profile_count": profile_count},
+    )
+
+
+@login_required
 def accounts_dashboard(request):
     if not is_manager(request.user):
         return render(request, "access_denied.html")
@@ -69,7 +86,8 @@ def add_delivery_profile(request):
         profile = form.save(commit=False)
         profile.user = request.user
         if profile.is_default:
-            DeliveryProfile.objects.filter(user=request.user, is_default=True).update(is_default=False)
+            DeliveryProfile.objects.filter(
+                user=request.user, is_default=True).update(is_default=False)
         profile.save()
         log_user_action(request.user, "Added delivery profile")
         return redirect("delivery_profiles")
@@ -78,24 +96,29 @@ def add_delivery_profile(request):
 
 @login_required
 def edit_delivery_profile(request, profile_id):
-    profile = get_object_or_404(DeliveryProfile, id=profile_id, user=request.user)
+    profile = get_object_or_404(
+        DeliveryProfile, id=profile_id, user=request.user)
     form = DeliveryProfileForm(request.POST or None, instance=profile)
     if request.method == "POST" and form.is_valid():
         profile = form.save(commit=False)
         profile.user = request.user
         if profile.is_default:
-            DeliveryProfile.objects.filter(user=request.user, is_default=True).exclude(id=profile.id).update(is_default=False)
+            DeliveryProfile.objects.filter(user=request.user, is_default=True).exclude(
+                id=profile.id).update(is_default=False)
         profile.save()
-        log_user_action(request.user, f"Updated delivery profile #{profile.id}")
+        log_user_action(
+            request.user, f"Updated delivery profile #{profile.id}")
         return redirect("delivery_profiles")
     return render(request, "accounts/add_delivery_profile.html", {"form": form})
 
 
 @login_required
 def delete_delivery_profile(request, profile_id):
-    profile = get_object_or_404(DeliveryProfile, id=profile_id, user=request.user)
+    profile = get_object_or_404(
+        DeliveryProfile, id=profile_id, user=request.user)
     if request.method == "POST":
         profile.delete()
-        log_user_action(request.user, f"Deleted delivery profile #{profile_id}")
+        log_user_action(
+            request.user, f"Deleted delivery profile #{profile_id}")
         return redirect("delivery_profiles")
     return render(request, "accounts/confirm_delete_delivery_profile.html", {"profile": profile})

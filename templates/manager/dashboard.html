@@ -19,6 +19,41 @@
     <div class="col-md-3"><div class="card"><div class="card-body"><strong>Payments:</strong> {{ payments_count }}</div></div></div>
 </div>
 
+<div class="row g-3 mt-1">
+    <div class="col-md-3"><div class="card border-0 shadow-sm"><div class="card-body"><div class="text-muted small">Total Revenue</div><div class="h5 mb-0">P{{ total_revenue }}</div></div></div></div>
+    <div class="col-md-3"><div class="card border-0 shadow-sm"><div class="card-body"><div class="text-muted small">Orders This Month</div><div class="h5 mb-0">{{ orders_this_month }}</div></div></div></div>
+    <div class="col-md-3"><div class="card border-0 shadow-sm"><div class="card-body"><div class="text-muted small">Revenue This Month</div><div class="h5 mb-0">P{{ revenue_this_month }}</div></div></div></div>
+    <div class="col-md-3"><div class="card border-0 shadow-sm"><div class="card-body"><div class="text-muted small">Completion Rate</div><div class="h5 mb-0">{{ completion_rate }}%</div></div></div></div>
+</div>
+
+<div class="row g-3 mt-1">
+    <div class="col-lg-12">
+        <div class="card shadow-sm h-100">
+            <div class="card-body">
+                <h5 class="mb-3">Daily Sales Report</h5>
+                <div class="table-responsive">
+                    <table class="table table-sm table-striped mb-0">
+                        <thead>
+                            <tr>
+                                <th>Date</th>
+                                <th>Paid Transactions</th>
+                                <th>Total Sales (PHP)</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            <tr>
+                                <td>{{ today_sales_date|date:"Y-m-d" }}</td>
+                                <td>{{ today_sales_count }}</td>
+                                <td>P{{ today_sales_total }}</td>
+                            </tr>
+                        </tbody>
+                    </table>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
 <div class="card shadow-sm mt-4">
     <div class="card-body">
         <h5 class="mb-3">Recent Orders</h5>
@@ -54,4 +89,5 @@
         </table>
     </div>
 </div>
+
 {% endblock %}

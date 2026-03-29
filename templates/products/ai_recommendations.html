@@ -11,19 +11,25 @@
                 the perfect cake and event package for your special occasion.
             </p>
             <ul class="list-unstyled text-muted">
-                <li class="mb-2">Seasonal trends (Christmas, Valentine's, Summer)</li>
-                <li class="mb-2">Based on your previous orders</li>
+                <li class="mb-2">Month occasions: {{ month_occasions|join:", " }}</li>
+                <li class="mb-2">{{ recommendation_basis }}</li>
                 <li>Popular items and trending designs</li>
             </ul>
             <a href="{% url 'package_list' %}" class="btn rounded-pill mt-3 px-4" style="background:#c4942a;color:#fff;font-weight:600;">
                 Try AI Recommendations
             </a>
+            {% if request.user.is_authenticated and is_manager_user %}
+            <a href="{% url 'recommendation_debug_panel' %}" class="btn btn-outline-secondary rounded-pill mt-3 px-4 ms-2">
+                Open Recommendation Debug
+            </a>
+            {% endif %}
         </div>
 
         <div class="col-lg-6">
             <div class="card border-0 shadow-sm rounded-4">
                 <div class="card-body p-4">
                     <h3 class="h4 mb-3 text-center">Recommended for {{ month }}</h3>
+                    <p class="small text-muted text-center mb-3">Occasions this month: {{ month_occasions|join:", " }}</p>
                     {% for rec in recommendations %}
                     <div class="d-flex align-items-center py-2 {% if not forloop.last %}border-bottom{% endif %}">
                         <div class="me-3 rounded bg-light d-flex align-items-center justify-content-center" style="width:64px;height:64px;">
@@ -36,11 +42,49 @@
                         <div class="flex-grow-1">
                             <div class="fw-semibold">{{ rec.package.name }}</div>
                             <div class="small text-muted">{{ rec.match_score }}% match with your preferences</div>
+                            {% if rec.reasons %}
+                            <div class="small mt-1">
+                                {% for reason in rec.reasons %}
+                                <span class="badge text-bg-light border me-1">{{ reason }}</span>
+                                {% endfor %}
+                            </div>
+                            {% endif %}
                         </div>
                         <div class="fw-semibold" style="color:#b27d15;">P{{ rec.package.base_price }}</div>
                     </div>
                     {% empty %}
                     <p class="text-muted mb-0">No recommendations available yet.</p>
+                    {% endfor %}
+                </div>
+            </div>
+
+            <div class="card border-0 shadow-sm rounded-4 mt-3">
+                <div class="card-body p-4">
+                    <h3 class="h5 mb-3 text-center">Recommended Cake Designs</h3>
+                    {% for rec in cake_recommendations %}
+                    <div class="d-flex align-items-center py-2 {% if not forloop.last %}border-bottom{% endif %}">
+                        <div class="me-3 rounded bg-light d-flex align-items-center justify-content-center" style="width:64px;height:64px;">
+                            {% if rec.cake.image %}
+                            <img src="{{ rec.cake.image.url }}" alt="{{ rec.cake.name }}" style="width:64px;height:64px;object-fit:cover;border-radius:8px;">
+                            {% else %}
+                            <span class="text-muted small">Img</span>
+                            {% endif %}
+                        </div>
+                        <div class="flex-grow-1">
+                            <div class="fw-semibold">{{ rec.cake.name }}</div>
+                            <div class="small text-muted">{{ rec.match_score }}% match with your preferences</div>
+                            {% if rec.reasons %}
+                            <div class="small mt-1">
+                                {% for reason in rec.reasons %}
+                                <span class="badge text-bg-light border me-1">{{ reason }}</span>
+                                {% endfor %}
+                            </div>
+                            {% endif %}
+                        </div>
+                        <div class="fw-semibold" style="color:#b27d15;">P{{ rec.cake.base_price }}</div>
+                    </div>
+                    {% empty %}
+                    <p class="text-muted mb-0">No cake recommendations available yet.</p>
                     {% endfor %}
                 </div>
             </div>

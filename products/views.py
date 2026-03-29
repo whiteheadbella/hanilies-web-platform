@@ -1,8 +1,11 @@
 import json
+from collections import defaultdict
 from datetime import datetime
 
 from django.contrib import messages
+from django.contrib.auth.models import User
 from django.contrib.auth.decorators import login_required
+from django.db.models import Q, Sum
 from django.http import JsonResponse
 from django.shortcuts import get_object_or_404, redirect, render
 from django.views.decorators.csrf import csrf_exempt
@@ -11,6 +14,33 @@ from accounts.permissions import is_manager
 
 from .forms import GalleryPhotoForm, HomeHeroUploadForm
 from .models import Cake, EventPackage, GalleryPhoto
+
+
+MONTH_OCCASION_MAP = {
+    1: ["New Year"],
+    2: ["Valentine", "Couples"],
+    3: ["Graduation", "Engagement"],
+    4: ["Wedding", "Anniversary"],
+    5: ["Mother", "Graduation"],
+    6: ["Father", "Wedding"],
+    7: ["Siblings"],
+    8: ["Couples", "Anniversary"],
+    9: ["Wedding", "Engagement"],
+    10: ["Halloween"],
+    11: ["Thanksgiving", "Anniversary"],
+    12: ["Christmas", "New Year"],
+}
+
+
+def get_month_occasions(month_number):
+    return MONTH_OCCASION_MAP.get(month_number, ["Special Occasion"])
+
+
+def _build_season_tag_query(occasion_keywords):
+    query = Q()
+    for keyword in occasion_keywords:
+        query |= Q(season_tags__name__icontains=keyword)
+    return query
 
 
 def customer_home(request):
@@ -38,6 +68,10 @@ def customer_home(request):
         .filter(is_active=True)
         .order_by("category__name", "package_set", "package_number")
     )
+    if not featured_packages.exists():
+        featured_packages = EventPackage.objects.select_related("category").order_by(
+            "category__name", "package_set", "package_number"
+        )
 
     set_map = {}
     for p in featured_packages:
@@ -82,14 +116,417 @@ def cake_list(request):
 
 
 def get_season_recommendations():
-    month = datetime.now().month
-    if month == 12:
-        return Cake.objects.filter(season_tags__name="Christmas")
-    if month == 2:
-        return Cake.objects.filter(season_tags__name="Valentine")
-    if month in [3, 4, 5]:
-        return Cake.objects.filter(season_tags__name="Graduation")
-    return Cake.objects.all()
+    month_number = datetime.now().month
+    month_occasions = get_month_occasions(month_number)
+    tagged_cakes = Cake.objects.filter(
+        _build_season_tag_query(month_occasions)
+    ).distinct()
+    return tagged_cakes if tagged_cakes.exists() else Cake.objects.all()
+
+
+def get_monthly_package_recommendations(month_number):
+    month_occasions = get_month_occasions(month_number)
+    tagged_packages = EventPackage.objects.filter(
+        is_active=True
+    ).filter(
+        _build_season_tag_query(month_occasions)
+    ).distinct().order_by("base_price")
+
+    if tagged_packages.exists():
+        return tagged_packages[:3]
+
+    return EventPackage.objects.filter(is_active=True).order_by("base_price")[:3]
+
+
+def _build_match_score(raw_score, base=55, cap=98):
+    return max(base, min(cap, int(base + raw_score)))
+
+
+def _get_user_package_signals(user):
+    if not user.is_authenticated:
+        return {}, set(), None
+
+    from orders.models import OrderDetail
+
+    history = list(
+        OrderDetail.objects.filter(
+            order__customer=user,
+            order__status__in=["CONFIRMED", "COMPLETED"],
+            package__isnull=False,
+        )
+        .select_related("package", "package__category")
+    )
+    if not history:
+        return {}, set(), None
+
+    package_qty = defaultdict(int)
+    category_qty = defaultdict(int)
+    weighted_price_total = 0
+    weighted_qty_total = 0
+
+    for row in history:
+        qty = row.quantity or 1
+        package_qty[row.package_id] += qty
+        if row.package and row.package.category_id:
+            category_qty[row.package.category_id] += qty
+        weighted_price_total += float(row.price) * qty
+        weighted_qty_total += qty
+
+    preferred_categories = {
+        cid for cid, _ in sorted(category_qty.items(), key=lambda kv: kv[1], reverse=True)[:2]
+    }
+    avg_price = (weighted_price_total /
+                 weighted_qty_total) if weighted_qty_total else None
+    return package_qty, preferred_categories, avg_price
+
+
+def _get_user_cake_signals(user):
+    if not user.is_authenticated:
+        return {}, set(), None
+
+    from orders.models import OrderDetail
+
+    history = list(
+        OrderDetail.objects.filter(
+            order__customer=user,
+            order__status__in=["CONFIRMED", "COMPLETED"],
+            cake__isnull=False,
+        )
+        .select_related("cake", "cake__category")
+    )
+    if not history:
+        return {}, set(), None
+
+    cake_qty = defaultdict(int)
+    flavor_qty = defaultdict(int)
+    weighted_price_total = 0
+    weighted_qty_total = 0
+
+    for row in history:
+        qty = row.quantity or 1
+        cake_qty[row.cake_id] += qty
+        if row.cake and row.cake.flavor:
+            flavor_qty[row.cake.flavor.lower()] += qty
+        weighted_price_total += float(row.price) * qty
+        weighted_qty_total += qty
+
+    preferred_flavors = {
+        flavor for flavor, _ in sorted(flavor_qty.items(), key=lambda kv: kv[1], reverse=True)[:2]
+    }
+    avg_price = (weighted_price_total /
+                 weighted_qty_total) if weighted_qty_total else None
+    return cake_qty, preferred_flavors, avg_price
+
+
+def get_rule_based_package_recommendations(user, month_occasions, limit=3):
+    from orders.models import OrderDetail
+
+    packages = list(
+        EventPackage.objects.filter(is_active=True)
+        .select_related("category")
+        .prefetch_related("season_tags")
+    )
+    if not packages:
+        return []
+
+    package_map = {pkg.id: pkg for pkg in packages}
+    scores = defaultdict(float)
+    reasons = defaultdict(list)
+
+    seasonal_ids = set(
+        EventPackage.objects.filter(is_active=True)
+        .filter(_build_season_tag_query(month_occasions))
+        .values_list("id", flat=True)
+    )
+    for pid in seasonal_ids:
+        scores[pid] += 14
+        reasons[pid].append("Seasonal match")
+
+    best_sellers = (
+        OrderDetail.objects.filter(
+            order__status__in=["CONFIRMED", "COMPLETED"], package__isnull=False
+        )
+        .values("package_id")
+        .annotate(total_qty=Sum("quantity"))
+        .order_by("-total_qty")[:10]
+    )
+    for rank, row in enumerate(best_sellers):
+        pid = row["package_id"]
+        if pid in package_map:
+            scores[pid] += max(12 - rank, 3)
+            reasons[pid].append("Best-selling package")
+
+    user_pkg_qty, preferred_categories, avg_price = _get_user_package_signals(
+        user)
+    for pid, qty in user_pkg_qty.items():
+        if pid in package_map:
+            scores[pid] += min(qty * 10, 35)
+            reasons[pid].append("Based on your previous orders")
+
+    for pkg in packages:
+        if pkg.category_id and pkg.category_id in preferred_categories:
+            scores[pkg.id] += 8
+            reasons[pkg.id].append("Matches preferred event category")
+
+        if avg_price:
+            distance = abs(float(pkg.base_price) - avg_price)
+            if distance <= 500:
+                scores[pkg.id] += 6
+                reasons[pkg.id].append("Within your typical budget range")
+
+    ranked = sorted(
+        packages, key=lambda p: (-scores[p.id], p.base_price, p.name))[:limit]
+    if not ranked:
+        return []
+
+    recommendations = []
+    for pkg in ranked:
+        rec_reasons = reasons[pkg.id][:2] or ["Trending recommendation"]
+        recommendations.append(
+            {
+                "package": pkg,
+                "match_score": _build_match_score(scores[pkg.id]),
+                "reasons": rec_reasons,
+            }
+        )
+    return recommendations
+
+
+def get_rule_based_cake_recommendations(user, month_occasions, limit=3):
+    from orders.models import OrderDetail
+
+    cakes = list(Cake.objects.all().prefetch_related("season_tags"))
+    if not cakes:
+        return []
+
+    cake_map = {cake.id: cake for cake in cakes}
+    scores = defaultdict(float)
+    reasons = defaultdict(list)
+
+    seasonal_ids = set(
+        Cake.objects.filter(_build_season_tag_query(
+            month_occasions)).values_list("id", flat=True)
+    )
+    for cid in seasonal_ids:
+        scores[cid] += 12
+        reasons[cid].append("Seasonal cake design")
+
+    best_sellers = (
+        OrderDetail.objects.filter(
+            order__status__in=["CONFIRMED", "COMPLETED"], cake__isnull=False)
+        .values("cake_id")
+        .annotate(total_qty=Sum("quantity"))
+        .order_by("-total_qty")[:10]
+    )
+    for rank, row in enumerate(best_sellers):
+        cid = row["cake_id"]
+        if cid in cake_map:
+            scores[cid] += max(10 - rank, 3)
+            reasons[cid].append("Best-selling cake")
+
+    user_cake_qty, preferred_flavors, avg_price = _get_user_cake_signals(user)
+    for cid, qty in user_cake_qty.items():
+        if cid in cake_map:
+            scores[cid] += min(qty * 10, 35)
+            reasons[cid].append("Based on your previous orders")
+
+    for cake in cakes:
+        if cake.flavor and cake.flavor.lower() in preferred_flavors:
+            scores[cake.id] += 8
+            reasons[cake.id].append("Matches your preferred flavor")
+
+        if avg_price:
+            distance = abs(float(cake.base_price) - avg_price)
+            if distance <= 300:
+                scores[cake.id] += 6
+                reasons[cake.id].append("Within your typical budget range")
+
+    ranked = sorted(
+        cakes, key=lambda c: (-scores[c.id], c.base_price, c.name))[:limit]
+    if not ranked:
+        return []
+
+    recommendations = []
+    for cake in ranked:
+        rec_reasons = reasons[cake.id][:2] or ["Trending recommendation"]
+        recommendations.append(
+            {
+                "cake": cake,
+                "match_score": _build_match_score(scores[cake.id]),
+                "reasons": rec_reasons,
+            }
+        )
+    return recommendations
+
+
+def _get_package_recommendation_debug_rows(user, month_occasions, limit=10):
+    from orders.models import OrderDetail
+
+    packages = list(
+        EventPackage.objects.filter(is_active=True)
+        .select_related("category")
+        .prefetch_related("season_tags")
+    )
+    if not packages:
+        return []
+
+    seasonal_ids = set(
+        EventPackage.objects.filter(is_active=True)
+        .filter(_build_season_tag_query(month_occasions))
+        .values_list("id", flat=True)
+    )
+
+    bestseller_rank = {}
+    best_sellers = (
+        OrderDetail.objects.filter(
+            order__status__in=["CONFIRMED", "COMPLETED"], package__isnull=False
+        )
+        .values("package_id")
+        .annotate(total_qty=Sum("quantity"))
+        .order_by("-total_qty")[:20]
+    )
+    for rank, row in enumerate(best_sellers):
+        bestseller_rank[row["package_id"]] = rank
+
+    user_pkg_qty, preferred_categories, avg_price = _get_user_package_signals(
+        user)
+
+    rows = []
+    for pkg in packages:
+        history_score = min(user_pkg_qty.get(pkg.id, 0) * 10, 35)
+        seasonal_score = 14 if pkg.id in seasonal_ids else 0
+
+        rank = bestseller_rank.get(pkg.id)
+        bestseller_score = max(12 - rank, 3) if rank is not None else 0
+
+        category_score = 8 if pkg.category_id and pkg.category_id in preferred_categories else 0
+
+        budget_score = 0
+        if avg_price is not None:
+            distance = abs(float(pkg.base_price) - avg_price)
+            if distance <= 500:
+                budget_score = 6
+
+        raw_score = history_score + seasonal_score + \
+            bestseller_score + category_score + budget_score
+        rows.append(
+            {
+                "name": pkg.name,
+                "category": pkg.category.name if pkg.category else "Uncategorized",
+                "price": pkg.base_price,
+                "history_score": history_score,
+                "bestseller_score": bestseller_score,
+                "seasonal_score": seasonal_score,
+                "category_score": category_score,
+                "budget_score": budget_score,
+                "raw_score": raw_score,
+                "match_score": _build_match_score(raw_score),
+            }
+        )
+
+    rows.sort(key=lambda row: (-row["raw_score"], row["price"], row["name"]))
+    return rows[:limit]
+
+
+def _get_cake_recommendation_debug_rows(user, month_occasions, limit=10):
+    from orders.models import OrderDetail
+
+    cakes = list(Cake.objects.all().prefetch_related("season_tags"))
+    if not cakes:
+        return []
+
+    seasonal_ids = set(
+        Cake.objects.filter(_build_season_tag_query(
+            month_occasions)).values_list("id", flat=True)
+    )
+
+    bestseller_rank = {}
+    best_sellers = (
+        OrderDetail.objects.filter(
+            order__status__in=["CONFIRMED", "COMPLETED"], cake__isnull=False)
+        .values("cake_id")
+        .annotate(total_qty=Sum("quantity"))
+        .order_by("-total_qty")[:20]
+    )
+    for rank, row in enumerate(best_sellers):
+        bestseller_rank[row["cake_id"]] = rank
+
+    user_cake_qty, preferred_flavors, avg_price = _get_user_cake_signals(user)
+
+    rows = []
+    for cake in cakes:
+        history_score = min(user_cake_qty.get(cake.id, 0) * 10, 35)
+        seasonal_score = 12 if cake.id in seasonal_ids else 0
+
+        rank = bestseller_rank.get(cake.id)
+        bestseller_score = max(10 - rank, 3) if rank is not None else 0
+
+        flavor_score = 8 if cake.flavor and cake.flavor.lower() in preferred_flavors else 0
+
+        budget_score = 0
+        if avg_price is not None:
+            distance = abs(float(cake.base_price) - avg_price)
+            if distance <= 300:
+                budget_score = 6
+
+        raw_score = history_score + seasonal_score + \
+            bestseller_score + flavor_score + budget_score
+        rows.append(
+            {
+                "name": cake.name,
+                "flavor": cake.flavor,
+                "price": cake.base_price,
+                "history_score": history_score,
+                "bestseller_score": bestseller_score,
+                "seasonal_score": seasonal_score,
+                "flavor_score": flavor_score,
+                "budget_score": budget_score,
+                "raw_score": raw_score,
+                "match_score": _build_match_score(raw_score),
+            }
+        )
+
+    rows.sort(key=lambda row: (-row["raw_score"], row["price"], row["name"]))
+    return rows[:limit]
+
+
+@login_required
+def recommendation_debug_panel(request):
+    if not is_manager(request.user):
+        return render(request, "access_denied.html")
+
+    month_number = datetime.now().month
+    month = datetime.now().strftime("%B")
+    month_occasions = get_month_occasions(month_number)
+
+    user_candidates = User.objects.filter(
+        order__isnull=False).distinct().order_by("username")
+
+    selected_user = request.user
+    selected_user_id = request.GET.get("user_id")
+    if selected_user_id:
+        try:
+            selected_user = user_candidates.get(id=int(selected_user_id))
+        except (ValueError, User.DoesNotExist):
+            selected_user = request.user
+
+    package_rows = _get_package_recommendation_debug_rows(
+        selected_user, month_occasions, limit=12)
+    cake_rows = _get_cake_recommendation_debug_rows(
+        selected_user, month_occasions, limit=12)
+
+    return render(
+        request,
+        "products/recommendation_debug.html",
+        {
+            "month": month,
+            "month_occasions": month_occasions,
+            "selected_user": selected_user,
+            "user_candidates": user_candidates,
+            "package_rows": package_rows,
+            "cake_rows": cake_rows,
+        },
+    )
 
 
 def gallery_view(request):
@@ -162,6 +599,12 @@ def package_list(request):
         .filter(is_active=True)
         .order_by("-id")
     )
+    if not packages.exists():
+        packages = (
+            EventPackage.objects.select_related("category")
+            .prefetch_related("items", "season_tags")
+            .order_by("-id")
+        )
 
     def derived_category_name(package):
         text = f"{package.package_set} {package.name}".lower()
@@ -274,24 +717,50 @@ def shop_location_page(request):
 
 
 def ai_recommendations_page(request):
+    month_number = datetime.now().month
     month = datetime.now().strftime("%B")
-    packages = list(
-        EventPackage.objects.filter(is_active=True).order_by("base_price")[:3]
+    month_occasions = get_month_occasions(month_number)
+    recommendations = get_rule_based_package_recommendations(
+        request.user, month_occasions, limit=3
     )
-    match_scores = [95, 88, 84]
-    recommendations = []
-    for idx, package in enumerate(packages):
-        recommendations.append(
+    cake_recommendations = get_rule_based_cake_recommendations(
+        request.user, month_occasions, limit=3
+    )
+
+    if not recommendations:
+        fallback_packages = list(
+            get_monthly_package_recommendations(month_number))
+        recommendations = [
             {
-                "package": package,
-                "match_score": match_scores[idx] if idx < len(match_scores) else 80,
+                "package": pkg,
+                "match_score": 75,
+                "reasons": ["Seasonal fallback recommendation"],
             }
-        )
+            for pkg in fallback_packages
+        ]
+
+    has_personalized_history = request.user.is_authenticated and any(
+        "Based on your previous orders" in reason
+        for rec in (recommendations + cake_recommendations)
+        for reason in rec.get("reasons", [])
+    )
+
+    recommendation_basis = (
+        "Personalized using your previous orders and best-selling items"
+        if has_personalized_history
+        else "Based on seasonal trends and best-selling items"
+    )
 
     return render(
         request,
         "products/ai_recommendations.html",
-        {"month": month, "recommendations": recommendations},
+        {
+            "month": month,
+            "month_occasions": month_occasions,
+            "recommendations": recommendations,
+            "cake_recommendations": cake_recommendations,
+            "recommendation_basis": recommendation_basis,
+        },
     )
 
 

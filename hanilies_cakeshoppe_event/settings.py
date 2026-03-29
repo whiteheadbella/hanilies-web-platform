@@ -121,16 +121,30 @@ WSGI_APPLICATION = 'hanilies_cakeshoppe_event.wsgi.application'
 # Database
 # https://docs.djangoproject.com/en/5.0/ref/settings/#databases
 
-DATABASES = {
-    'default': {
-        'ENGINE': 'django.db.backends.postgresql',
-        'NAME': config('DB_NAME', default='hanilies'),
-        'USER': config('DB_USER', default='hanilies_user'),
-        'PASSWORD': config('DB_PASSWORD', default='4c3OZrTm9bWuwBN8OlVg4HmffaHRMmWa'),
-        'HOST': config('DB_HOST', default='dpg-d6d7h3f5r7bs73ardshg-a.singapore-postgres.render.com'),
-        'PORT': config('DB_PORT', default=5432, cast=int),
+# Use PostgreSQL by default so local VS Code run mirrors Render data.
+USE_POSTGRES = config('USE_POSTGRES', default=True, cast=bool)
+
+if USE_POSTGRES:
+    DATABASES = {
+        'default': {
+            'ENGINE': 'django.db.backends.postgresql',
+            'NAME': config('DB_NAME', default='hanilies'),
+            'USER': config('DB_USER', default='hanilies_user'),
+            'PASSWORD': config('DB_PASSWORD', default='4c3OZrTm9bWuwBN8OlVg4HmffaHRMmWa'),
+            'HOST': config('DB_HOST', default='dpg-d6d7h3f5r7bs73ardshg-a.singapore-postgres.render.com'),
+            'PORT': config('DB_PORT', default=5432, cast=int),
+            'OPTIONS': {
+                'sslmode': config('DB_SSLMODE', default='require'),
+            },
+        }
     }
-}
+else:
+    DATABASES = {
+        'default': {
+            'ENGINE': 'django.db.backends.sqlite3',
+            'NAME': BASE_DIR / 'db.sqlite3',
+        }
+    }
 
 # Password validation
 # https://docs.djangoproject.com/en/5.0/ref/settings/#auth-password-validators

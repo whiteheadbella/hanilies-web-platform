@@ -37,9 +37,8 @@
                     </a>
                 </div>
                 {% for package_set in category.sets %}
-                {% if package_set.set_name != "General Set" %}
                 <div class="mb-3" id="set-{{ category.category|slugify }}-{{ package_set.set_name|slugify }}">
-                    <h5 class="text-secondary">{{ package_set.set_name }}</h5>
+                    <h5 class="text-secondary">{% if package_set.set_name == "General Set" %}Standard Packages{% else %}{{ package_set.set_name }}{% endif %}</h5>
                     <div class="row g-4">
                         {% for package in package_set.packages %}
                         <div class="col-12 col-md-6 col-lg-4">
@@ -131,7 +130,6 @@
                         {% endfor %}
                     </div>
                 </div>
-                {% endif %}
                 {% endfor %}
             </section>
         </div>

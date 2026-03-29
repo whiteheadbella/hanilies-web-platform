@@ -1,5 +1,11 @@
 {% extends "admin/base_site.html" %}
 
+{% block title %}Hanilies Admin | {{ block.super }}{% endblock %}
+
+{% block branding %}
+<h1 id="site-name"><a href="/admin/">Hanilies Admin</a></h1>
+{% endblock %}
+
 {% block extrastyle %}
 {{ block.super }}
 <style>
@@ -11,6 +17,13 @@
 {% endblock %}
 
 {% block userlinks %}
-    <a href="{% url 'accounts_dashboard' %}">Back to Accounts Control Panel</a> /
+    {% if user.is_authenticated %}
+    <a href="{% url 'my_account' %}">Back to My Account</a>
+    {% if is_manager_user %}
+    / <a href="{% url 'accounts_dashboard' %}">Manager Accounts Panel</a>
+    {% endif %}
+    / {{ block.super }}
+    {% else %}
     {{ block.super }}
+    {% endif %}
 {% endblock %}
