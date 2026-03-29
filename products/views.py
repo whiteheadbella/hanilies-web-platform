@@ -97,7 +97,15 @@ def customer_home(request):
         is_active=True,
         image__isnull=False,
     ).exclude(image="").first()
-    hero_image = hero_photo.image if hero_photo else None
+
+    hero_image = None
+    if hero_photo and hero_photo.image:
+        # Prevent broken <img> URLs when DB path exists but file is missing on disk.
+        try:
+            if hero_photo.image.storage.exists(hero_photo.image.name):
+                hero_image = hero_photo.image
+        except Exception:
+            hero_image = None
 
     return render(
         request,

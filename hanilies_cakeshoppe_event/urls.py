@@ -60,7 +60,14 @@ urlpatterns = [
     )),
 ]
 
-# Static & media files (development only)
+# Static files (development only)
 if settings.DEBUG:
-    urlpatterns += static(settings.MEDIA_URL, document_root=settings.MEDIA_ROOT)
-    urlpatterns += static(settings.STATIC_URL, document_root=settings.STATIC_ROOT)
+    urlpatterns += static(settings.STATIC_URL,
+                          document_root=settings.STATIC_ROOT)
+
+# Media files:
+# - Always served in development.
+# - In production, only served by Django when Cloudinary storage is not enabled.
+if settings.DEBUG or not getattr(settings, 'USE_CLOUDINARY_MEDIA', False):
+    urlpatterns += static(settings.MEDIA_URL,
+                          document_root=settings.MEDIA_ROOT)
