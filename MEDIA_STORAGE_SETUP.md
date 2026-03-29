@@ -36,7 +36,29 @@ Once enabled, new uploaded images (hero/gallery/cakes) are stored remotely.
 ## 4) Existing local media files
 
 Images uploaded before Cloudinary setup may still reference old local paths.
-Re-upload important images after Cloudinary is enabled.
+You can migrate local files to Cloudinary with the management command below.
+
+Run dry-run first:
+
+```bash
+python manage.py migrate_media_to_cloudinary --dry-run
+```
+
+Run actual migration:
+
+```bash
+python manage.py migrate_media_to_cloudinary
+```
+
+The command scans these fields and uploads files found under MEDIA_ROOT:
+
+- AddOnItem.image
+- Cake.image
+- EventPackage.image
+- GalleryPhoto.image
+- Customization.reference_image
+
+If a source file is missing on disk, the command reports it so you can re-upload manually.
 
 ## Notes
 
