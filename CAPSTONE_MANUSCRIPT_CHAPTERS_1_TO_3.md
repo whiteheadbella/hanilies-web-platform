@@ -5,94 +5,91 @@ CAPSTONE MANUSCRIPT
 Chapters I, II, III
 
 
----
-
 # TABLE OF CONTENTS
 
-CHAPTER 1: THE PROBLEM AND ITS BACKGROUND ........................................................ [page]
-1.1 Introduction ................................................................................. [page]
-1.2 Background of the Study ..................................................................... [page]
-1.3 Statement of the Problem .................................................................... [page]
-1.4 Objectives of the Study ..................................................................... [page]
-1.5 Significance of the Study ................................................................... [page]
-1.6 Scope and Delimitation ...................................................................... [page]
-1.7 Conceptual Framework ......................................................................... [page]
-1.8 Definition of Terms ......................................................................... [page]
+CHAPTER 1: THE PROBLEM AND ITS BACKGROUND 
+1.1 Introduction 
+1.2 Background of the Study 
+1.3 Statement of the Problem 
+1.4 Objectives of the Study 
+1.5 Significance of the Study 
+1.6 Scope and Delimitation 
+1.7 Conceptual Framework 
+1.8 Definition of Terms 
 
-CHAPTER 2: REVIEW OF RELATED LITERATURE AND SYSTEMS .............................................. [page]
-2.1 Introduction ................................................................................. [page]
-2.2 Related Literature ........................................................................... [page]
-2.3 Related Systems .............................................................................. [page]
-2.4 Synthesis of Literature and Research Gap .................................................... [page]
-2.5 Theoretical and Technical Anchors of the Study .............................................. [page]
-2.6 Conceptual Model of the Proposed System ...................................................... [page]
-2.7 Chapter Summary .............................................................................. [page]
+CHAPTER 2: REVIEW OF RELATED LITERATURE AND SYSTEMS 
+2.1 Introduction 
+2.2 Related Literature 
+2.3 Related Systems 
+2.4 Synthesis of Literature and Research Gap 
+2.5 Theoretical and Technical Anchors of the Study 
+2.6 Conceptual Model of the Proposed System  
+2.7 Chapter Summary 
 
-CHAPTER 3: METHODOLOGY ........................................................................... [page]
-3.1 Introduction ................................................................................. [page]
-3.2 Research Design .............................................................................. [page]
-3.3 Development Methodology ...................................................................... [page]
-3.3.1 Development Procedures ..................................................................... [page]
-3.3.2 Development Phases ......................................................................... [page]
-3.3.3 One-Page Visual Timeline (Gantt-Style) ..................................................... [page]
-3.4 System Development Environment ............................................................... [page]
-3.4.1 System Development Tools and Technologies ................................................... [page]
-3.5 Requirements Engineering Procedure ........................................................... [page]
-3.5.1 Requirements Analysis ...................................................................... [page]
-3.6 System Architecture .......................................................................... [page]
-3.6.1 Software Design ............................................................................ [page]
-3.6.2 Products and Processes ...................................................................... [page]
-3.6.3 Major Product Modules ....................................................................... [page]
-3.7 Database and Data Model Design ............................................................... [page]
-3.8 Operational Workflow Implementation ........................................................... [page]
-3.9 Access Control and Security Controls ......................................................... [page]
-3.10 Testing and Validation Strategy ............................................................. [page]
-3.10.1 Testing Procedures ......................................................................... [page]
-3.11 Deployment Method ............................................................................ [page]
-3.12 Ethical Considerations and Data Handling ..................................................... [page]
-3.13 Chapter Summary .............................................................................. [page]
-3.14 Cost-Benefit Analysis (Philippine Peso) ..................................................... [page]
-3.15 Required System Diagrams (Core) ............................................................. [page]
-3.15.1 System Flowchart .......................................................................... [page]
-3.15.2 Entity Relationship Diagram (ERD) ......................................................... [page]
-3.15.3 IPO Diagram (Input-Process-Output) ........................................................ [page]
-3.15.4 HIPO Diagram ............................................................................... [page]
-3.15.5 Class Diagram .............................................................................. [page]
-3.15.6 Use Case Diagram ........................................................................... [page]
-3.15.7 System Architecture Diagram ................................................................. [page]
-3.15.8 Block Diagram .............................................................................. [page]
-3.15.9 Data Flow Diagram (DFD) Level 0 ........................................................... [page]
-3.15.10 Data Flow Diagram (DFD) Level 1 .......................................................... [page]
-3.15.11 Sequence Diagram .......................................................................... [page]
-
-REFERENCES (IEEE STYLE) .......................................................................... [page]
+CHAPTER 3: METHODOLOGY 
+3.1 Introduction 
+3.2 Research Design 
+3.3 Development Methodology 
+3.3.1 Development Procedures 
+3.3.2 Development Phases 
+3.3.3 One-Page Visual Timeline (Gantt-Style) 
+3.4 System Development Environment 
+3.4.1 System Development Tools and Technologies .
+3.5 Requirements Engineering Procedure 
+3.5.1 Requirements Analysis 
+3.6 System Architecture 
+3.6.1 Software Design 
+3.6.2 Products and Processes 
+3.6.3 Major Product Modules 
+3.7 Database and Data Model Design 
+3.8 Operational Workflow Implementation
+3.9 Access Control and Security Controls 
+3.10 Testing and Validation Strategy 
+3.10.1 Testing Procedures 
+3.11 Deployment Method
+3.12 Ethical Considerations and Data Handling 
+3.13 Chapter Summary 
+3.14 Cost-Benefit Analysis 
+3.15 Required System Diagrams (Core) 
+3.15.1 System Flowchart 
+3.15.2 Entity Relationship Diagram (ERD) 
+3.15.3 IPO Diagram (Input-Process-Output) 
+3.15.4 HIPO Diagram 
+3.15.5 Class Diagram 
+3.15.6 Use Case Diagram  
+3.15.7 System Architecture Diagram 
+3.15.8 Block Diagram 
+3.15.9 Data Flow Diagram (DFD) Level 0 
+3.15.10 Data Flow Diagram (DFD) Level 1  
+3.15.11 Sequence Diagram 
+REFERENCES (IEEE STYLE) 
 
 # LIST OF FIGURES
 
-Figure 3.1. System Flowchart of the Hanilie's Cakeshoppe Event Management and Ordering Platform .......... [page]
-Figure 3.2. Entity Relationship Diagram (ERD) ........................................................ [page]
-Figure 3.3. Input-Process-Output (IPO) Diagram ....................................................... [page]
-Figure 3.4. HIPO Diagram ........................................................................ [page]
-Figure 3.5. Class Diagram ....................................................................... [page]
-Figure 3.6. Use Case Diagram .................................................................... [page]
-Figure 3.7. System Architecture Diagram .......................................................... [page]
-Figure 3.8. System Block Diagram ................................................................. [page]
-Figure 3.9. Data Flow Diagram (DFD) Level 0 ..................................................... [page]
-Figure 3.10. Data Flow Diagram (DFD) Level 1 .................................................... [page]
-Figure 3.11. Sequence Diagram for Checkout-to-Payment Confirmation ................................. [page]
+Figure 3.1. System Flowchart of the Hanilie's Cakeshoppe Event Management and Ordering Platform 
+Figure 3.2. Entity Relationship Diagram (ERD) 
+Figure 3.3. Input-Process-Output (IPO) Diagram 
+Figure 3.4. HIPO Diagram 
+Figure 3.5. Class Diagram .
+Figure 3.6. Use Case Diagram 
+Figure 3.7. System Architecture Diagram 
+Figure 3.8. System Block Diagram 
+Figure 3.9. Data Flow Diagram (DFD) Level 0 
+Figure 3.10. Data Flow Diagram (DFD) Level 1 
+Figure 3.11. Sequence Diagram for Checkout-to-Payment Confirmation 
 
 # LIST OF TABLES
 
-Table 3.0. Functional Requirements Specification ................................................... [page]
-Table 3.0.1. Non-Functional Requirements Specification .............................................. [page]
-Table 3.0.2. Development Phases of the Study ....................................................... [page]
-Table 3.0.3. Development Timeline (Six-Month Gantt-Style View) .................................... [page]
-Table 3.0.4. System Development Tools and Technologies ............................................. [page]
-Table 3.0.5. Major Product Modules ................................................................ [page]
-Table 3.0.6. MoSCoW Prioritization of Functional Requirements ...................................... [page]
-Table 3.1. Estimated One-Time and Annual Operating Costs ........................................... [page]
-Table 3.2. Estimated Annual Benefits ............................................................... [page]
-Table 3.3. ROI Summary ............................................................................. [page]
+Table 3.0. Functional Requirements Specification 
+Table 3.0.1. Non-Functional Requirements Specification 
+Table 3.0.2. Development Phases of the Study 
+Table 3.0.3. Development Timeline (Six-Month Gantt-Style View) 
+Table 3.0.4. System Development Tools and Technologies 
+Table 3.0.5. Major Product Modules  
+Table 3.0.6. MoSCoW Prioritization of Functional Requirements 
+Table 3.1. Estimated One-Time and Annual Operating Costs 
+Table 3.2. Estimated Annual Benefits 
+Table 3.3. ROI Summary 
 
 ---
 
