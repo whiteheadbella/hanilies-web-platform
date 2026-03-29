@@ -4,9 +4,12 @@
 <div class="container mt-4">
     <div class="d-flex align-items-center justify-content-between mb-3">
         <h2 class="h4 mb-0">My Account</h2>
-        {% if is_manager_user %}
-        <a class="btn btn-outline-primary btn-sm" href="{% url 'accounts_dashboard' %}">Manager Panel</a>
-        {% endif %}
+        <div class="d-flex gap-2">
+            <a class="btn btn-outline-secondary btn-sm" href="{% url 'navigation_map' %}">System Map</a>
+            {% if is_manager_user %}
+            <a class="btn btn-outline-primary btn-sm" href="{% url 'accounts_dashboard' %}">Manager Panel</a>
+            {% endif %}
+        </div>
     </div>
 
     <div class="row g-3">

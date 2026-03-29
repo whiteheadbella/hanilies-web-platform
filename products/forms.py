@@ -26,3 +26,29 @@ class HomeHeroUploadForm(forms.Form):
         required=True,
         widget=forms.ClearableFileInput(attrs={"class": "form-control"}),
     )
+
+
+class EventPackageInquiryForm(forms.Form):
+    name = forms.CharField(
+        required=True,
+        widget=forms.TextInput(attrs={"class": "form-control"}),
+    )
+    email = forms.EmailField(
+        required=True,
+        widget=forms.EmailInput(attrs={"class": "form-control"}),
+    )
+    phone = forms.CharField(
+        required=True,
+        widget=forms.TextInput(attrs={"class": "form-control"}),
+    )
+    celebration_type = forms.CharField(
+        required=True,
+        label="What type of Celebration are you having?",
+        widget=forms.TextInput(attrs={"class": "form-control"}),
+    )
+    celebration_date = forms.DateField(
+        required=True,
+        label="When will you be having your celebration?",
+        widget=forms.DateInput(
+            attrs={"class": "form-control", "type": "date"}),
+    )

@@ -1,7 +1,10 @@
 {% extends "base.html" %}
 
 {% block content %}
-<h3 class="mt-4">Notifications</h3>
+<div class="d-flex justify-content-between align-items-center mt-4">
+    <h3 class="mb-0">Notifications</h3>
+    <a class="btn btn-outline-secondary btn-sm" href="{{ back_url }}">Back</a>
+</div>
 <div class="card shadow-sm mt-3">
     <div class="card-body">
         <ul class="list-group">

@@ -227,7 +227,25 @@ def checkout_cart(request):
         messages.info(request, "Your cart is empty.")
         return redirect("cart_view")
 
-    form = BookingForm(request.POST or None, user=request.user)
+    inquiry_data = request.session.get("event_package_inquiry", {})
+    has_package_items = any(item.package_id for item in items)
+
+    prefill_initial = {}
+    if (
+        request.method != "POST"
+        and not confirmed_booking
+        and has_package_items
+        and inquiry_data
+    ):
+        celebration_date = inquiry_data.get("celebration_date")
+        if celebration_date:
+            prefill_initial["event_date"] = celebration_date
+
+    if request.method == "POST":
+        form = BookingForm(request.POST, user=request.user)
+    else:
+        form = BookingForm(initial=prefill_initial, user=request.user)
+
     total = _cart_total(items)
     if request.method == "POST":
         if confirmed_booking:
@@ -281,6 +299,7 @@ def checkout_cart(request):
             "items": items,
             "total": total,
             "confirmed_booking": confirmed_booking,
+            "booking_prefilled": bool(prefill_initial),
         },
     )
 

@@ -12,7 +12,7 @@ from django.views.decorators.csrf import csrf_exempt
 
 from accounts.permissions import is_manager
 
-from .forms import GalleryPhotoForm, HomeHeroUploadForm
+from .forms import EventPackageInquiryForm, GalleryPhotoForm, HomeHeroUploadForm
 from .models import Cake, EventPackage, GalleryPhoto
 
 
@@ -593,6 +593,30 @@ def gallery_manage(request):
 
 
 def package_list(request):
+    inquiry_session_key = "event_package_inquiry"
+    saved_inquiry = request.session.get(inquiry_session_key, {})
+
+    if request.GET.get("reset_details") == "1":
+        request.session.pop(inquiry_session_key, None)
+        saved_inquiry = {}
+        messages.info(
+            request, "Event details cleared. Please fill the form again.")
+
+    if request.method == "POST" and request.POST.get("form_type") == "event_package_inquiry":
+        event_inquiry_form = EventPackageInquiryForm(request.POST)
+        if event_inquiry_form.is_valid():
+            cleaned = event_inquiry_form.cleaned_data.copy()
+            cleaned["celebration_date"] = cleaned["celebration_date"].isoformat()
+            request.session[inquiry_session_key] = cleaned
+            request.session.modified = True
+            messages.success(
+                request, "Event details saved. You can now browse packages.")
+            return redirect("package_list")
+    else:
+        event_inquiry_form = EventPackageInquiryForm(initial=saved_inquiry)
+
+    form_completed = bool(saved_inquiry)
+
     packages = (
         EventPackage.objects.select_related("category")
         .prefetch_related("items", "season_tags")
@@ -673,6 +697,13 @@ def package_list(request):
         )
     )
 
+    category_options = [section["category"] for section in grouped_packages]
+    selected_category = request.GET.get("category", "all")
+    if selected_category != "all":
+        grouped_packages = [
+            section for section in grouped_packages if section["category"] == selected_category
+        ]
+
     set_map = {}
     for p in packages:
         key = (p.category.name if p.category else "Uncategorized", p.package_set)
@@ -700,6 +731,10 @@ def package_list(request):
         {
             "grouped_packages": grouped_packages,
             "package_sets": package_sets,
+            "event_inquiry_form": event_inquiry_form,
+            "form_completed": form_completed,
+            "category_options": category_options,
+            "selected_category": selected_category,
         },
     )
 

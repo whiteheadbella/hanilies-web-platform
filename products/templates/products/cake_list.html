@@ -1,16 +1,53 @@
-{% extends 'base.html' %}
+{% extends "base.html" %}
 
 {% block content %}
-
-<h1>Cakes</h1>
-
-{% for cake in cakes %}
-    <div>
-        <h3>{{ cake.name }}</h3>
-        <p>{{ cake.flavor }}</p>
-        <p>{{ cake.base_price }}</p>
-        <img src="{{ cake.image.url }}" width="200">
+<section class="mb-4 p-4 rounded-4 border bg-white">
+    <div class="d-flex flex-wrap justify-content-between align-items-center gap-2">
+        <div>
+            <h1 class="h4 mb-1">Cake Products</h1>
+            <p class="text-muted mb-0">Explore our available cake designs and base pricing.</p>
+        </div>
+        <a class="btn btn-outline-primary btn-sm" href="{% url 'customize_cake' %}">
+            <i class="bi bi-brush me-1"></i>Customize a Cake
+        </a>
     </div>
-{% endfor %}
+</section>
 
+{% if cakes %}
+<section>
+    <div class="row g-4">
+        {% for cake in cakes %}
+        <div class="col-12 col-md-6 col-lg-4">
+            <div class="card h-100 shadow-sm">
+                {% if cake.image %}
+                <img src="{{ cake.image.url }}" class="card-img-top" alt="{{ cake.name }}" style="height: 220px; object-fit: cover;">
+                {% else %}
+                <div class="d-flex align-items-center justify-content-center bg-light text-muted" style="height: 220px;">
+                    No image
+                </div>
+                {% endif %}
+
+                <div class="card-body d-flex flex-column">
+                    <h5 class="card-title mb-1">{{ cake.name }}</h5>
+                    <p class="text-muted small mb-3">
+                        {% if cake.category %}{{ cake.category.name }}{% else %}Uncategorized{% endif %}
+                    </p>
+
+                    <div class="small mb-2"><strong>Flavor:</strong> {{ cake.flavor }}</div>
+                    <div class="small mb-2"><strong>Size:</strong> {{ cake.size }}</div>
+                    <div class="small mb-3"><strong>Price:</strong> P{{ cake.base_price }}</div>
+
+                    <div class="mt-auto d-flex gap-2">
+                        <a class="btn btn-sm btn-outline-secondary" href="{% url 'gallery_view' %}">View Gallery</a>
+                        <a class="btn btn-sm btn-primary" href="{% url 'customize_cake' %}">Order/Customize</a>
+                    </div>
+                </div>
+            </div>
+        </div>
+        {% endfor %}
+    </div>
+</section>
+{% else %}
+<div class="alert alert-info">No cake products available yet.</div>
+{% endif %}
 {% endblock %}

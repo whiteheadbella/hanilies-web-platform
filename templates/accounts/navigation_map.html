@@ -1,0 +1,58 @@
+{% extends "base.html" %}
+
+{% block content %}
+<div class="container mt-4">
+    <div class="d-flex flex-wrap align-items-center justify-content-between gap-2 mb-3">
+        <h2 class="h4 mb-0">System Navigation Map</h2>
+        <a class="btn btn-outline-secondary btn-sm" href="{% url 'accounts_home' %}">Back to Accounts</a>
+    </div>
+
+    <div class="alert alert-info py-2">
+        Use this page as a complete route map for daily operations and role-based module access.
+    </div>
+
+    <div class="row g-3">
+        <div class="col-lg-6">
+            <div class="card shadow-sm h-100">
+                <div class="card-body">
+                    <h3 class="h6">Customer Journey</h3>
+                    <ol class="small mb-0">
+                        <li><a href="{% url 'customer_home' %}">Home</a></li>
+                        <li><a href="{% url 'cake_list' %}">Cake Products</a></li>
+                        <li><a href="{% url 'package_list' %}">Event Packages</a></li>
+                        <li><a href="{% url 'customize_cake' %}">Customization</a></li>
+                        <li><a href="{% url 'cart_view' %}">Cart Checkout</a></li>
+                        <li><a href="{% url 'my_orders' %}">Orders</a></li>
+                        <li><a href="{% url 'my_payments' %}">Payments</a></li>
+                        <li><a href="{% url 'my_notifications' %}">Notifications</a></li>
+                        <li><a href="{% url 'my_account' %}">My Account</a></li>
+                        <li><a href="{% url 'ai_recommendations_page' %}">AI Recommendations</a></li>
+                    </ol>
+                </div>
+            </div>
+        </div>
+
+        <div class="col-lg-6">
+            <div class="card shadow-sm h-100">
+                <div class="card-body">
+                    <h3 class="h6">Staff/Admin Operations</h3>
+                    {% if is_manager %}
+                    <ol class="small mb-0">
+                        <li><a href="{% url 'accounts_dashboard' %}">Accounts Dashboard</a></li>
+                        <li><a href="{% url 'manager_dashboard' %}">Manager Dashboard</a></li>
+                        <li><a href="{% url 'schedule_list' %}">Scheduling</a></li>
+                        <li><a href="{% url 'audit_logs' %}">Audit Logs</a></li>
+                        <li><a href="{% url 'create_staff_account' %}">Create Staff Account</a></li>
+                        <li><a href="/admin/">Django Admin Panel</a></li>
+                        <li><a href="{% url 'gallery_manage' %}">Manage Gallery</a></li>
+                        <li><a href="{% url 'product_photos' %}">Product Photos</a></li>
+                    </ol>
+                    {% else %}
+                    <p class="text-muted mb-0">Staff/Admin operation links are visible only to authorized roles.</p>
+                    {% endif %}
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}

@@ -58,6 +58,35 @@
             background-color: rgba(255, 228, 234, 0.16);
             color: #ffe9be !important;
         }
+        .main-nav .notif-badge {
+            font-size: 0.68rem;
+            line-height: 1;
+            padding: 0.3rem 0.42rem;
+            vertical-align: middle;
+            margin-left: 0.35rem;
+        }
+        .main-nav .dropdown-menu {
+            background: #5a1327;
+            border: 1px solid #8a3e52;
+            border-radius: 0.6rem;
+            box-shadow: 0 10px 22px rgba(35, 7, 16, 0.35);
+        }
+        .main-nav .dropdown-item {
+            color: #fff6f8;
+            font-weight: 600;
+        }
+        .main-nav .dropdown-item:hover,
+        .main-nav .dropdown-item:focus {
+            background-color: rgba(255, 228, 234, 0.16);
+            color: #ffe9be;
+        }
+        .main-nav .dropdown-item.active {
+            background-color: rgba(255, 228, 234, 0.2);
+            color: #ffe9be;
+        }
+        .main-nav .dropdown-divider {
+            border-top-color: rgba(255, 228, 234, 0.22);
+        }
         .main-nav .brand-icon {
             color: #ffd88a;
         }
@@ -113,20 +142,44 @@
         </button>
         <div class="collapse navbar-collapse" id="mainNavbar">
             <ul class="navbar-nav me-auto align-items-xl-center">
-                <li class="nav-item"><a class="nav-link" href="{% url 'customer_home' %}"><i class="bi bi-house-fill icon-home"></i>Home</a></li>
-                <li class="nav-item"><a class="nav-link" href="{% url 'accounts_home' %}"><i class="bi bi-person-badge icon-accounts"></i>Accounts</a></li>
-                {% if is_manager_user %}
-                <li class="nav-item"><a class="nav-link" href="{% url 'gallery_manage' %}"><i class="bi bi-images icon-gallery"></i>Manage Gallery</a></li>
-                {% endif %}
+                <li class="nav-item"><a class="nav-link {% if request.resolver_match.url_name == 'customer_home' %}active-link{% endif %}" href="{% url 'customer_home' %}"><i class="bi bi-house-fill icon-home"></i>Home</a></li>
+                <li class="nav-item"><a class="nav-link {% if request.resolver_match.url_name == 'accounts_home' or request.resolver_match.url_name == 'login' or request.resolver_match.url_name == 'register' or request.resolver_match.url_name == 'my_account' or request.resolver_match.url_name == 'accounts_dashboard' or request.resolver_match.url_name == 'create_staff_account' or request.resolver_match.url_name == 'delivery_profiles' or request.resolver_match.url_name == 'add_delivery_profile' or request.resolver_match.url_name == 'edit_delivery_profile' or request.resolver_match.url_name == 'delete_delivery_profile' or request.resolver_match.url_name == 'navigation_map' or '/admin/' in request.path %}active-link{% endif %}" href="{% url 'accounts_home' %}"><i class="bi bi-person-badge icon-accounts"></i>Accounts</a></li>
+                <li class="nav-item dropdown">
+                    <a class="nav-link dropdown-toggle {% if request.resolver_match.url_name == 'cake_list' or request.resolver_match.url_name == 'package_list' or request.resolver_match.url_name == 'cart_view' or request.resolver_match.url_name == 'checkout_cart' or request.resolver_match.url_name == 'my_orders' or request.resolver_match.url_name == 'my_payments' or request.resolver_match.url_name == 'payment_create' or request.resolver_match.url_name == 'customize_cake' or request.resolver_match.url_name == 'checkout_from_customization' or request.resolver_match.url_name == 'order_now_package' or request.resolver_match.url_name == 'add_package_to_cart' or request.resolver_match.url_name == 'add_customization_to_cart' %}active-link{% endif %}" href="#" id="ordersDropdown" role="button" data-bs-toggle="dropdown" aria-expanded="false">
+                        <i class="bi bi-receipt icon-orders"></i>Orders
+                    </a>
+                    <ul class="dropdown-menu" aria-labelledby="ordersDropdown">
+                        <li><a class="dropdown-item {% if request.resolver_match.url_name == 'cake_list' %}active{% endif %}" href="{% url 'cake_list' %}"><i class="bi bi-cake2 me-2"></i>Cake Products</a></li>
+                        <li><a class="dropdown-item {% if request.resolver_match.url_name == 'package_list' %}active{% endif %}" href="{% url 'package_list' %}"><i class="bi bi-box-seam me-2"></i>Event Packages</a></li>
+                        <li><a class="dropdown-item {% if request.resolver_match.url_name == 'cart_view' or request.resolver_match.url_name == 'checkout_cart' %}active{% endif %}" href="{% url 'cart_view' %}"><i class="bi bi-cart-check me-2"></i>Cart Checkout</a></li>
+                        <li><a class="dropdown-item {% if request.resolver_match.url_name == 'my_orders' %}active{% endif %}" href="{% url 'my_orders' %}"><i class="bi bi-receipt me-2"></i>Orders</a></li>
+                        <li><a class="dropdown-item {% if request.resolver_match.url_name == 'my_payments' or request.resolver_match.url_name == 'payment_create' %}active{% endif %}" href="{% url 'my_payments' %}"><i class="bi bi-cash-coin me-2"></i>Payments</a></li>
+                        <li><a class="dropdown-item {% if request.resolver_match.url_name == 'customize_cake' %}active{% endif %}" href="{% url 'customize_cake' %}"><i class="bi bi-brush me-2"></i>Customization</a></li>
+                    </ul>
+                </li>
+                <li class="nav-item dropdown">
+                    <a class="nav-link dropdown-toggle {% if request.resolver_match.url_name == 'my_notifications' or request.resolver_match.url_name == 'ai_recommendations_page' or request.resolver_match.url_name == 'navigation_map' or request.resolver_match.url_name == 'schedule_list' or request.resolver_match.url_name == 'audit_logs' or request.resolver_match.url_name == 'create_staff_account' or request.resolver_match.url_name == 'gallery_manage' or request.resolver_match.url_name == 'recommendation_debug_panel' %}active-link{% endif %}" href="#" id="toolsDropdown" role="button" data-bs-toggle="dropdown" aria-expanded="false">
+                        <i class="bi bi-grid-3x3-gap me-1"></i>Tools
+                        {% if unread_notifications_count > 0 %}
+                        <span class="badge rounded-pill bg-danger notif-badge">{{ unread_notifications_count }}</span>
+                        {% endif %}
+                    </a>
+                    <ul class="dropdown-menu" aria-labelledby="toolsDropdown">
+                        <li><a class="dropdown-item {% if request.resolver_match.url_name == 'my_notifications' %}active{% endif %}" href="{% url 'my_notifications' %}?next={{ request.get_full_path|urlencode }}"><i class="bi bi-bell me-2"></i>Notifications{% if unread_notifications_count > 0 %}<span class="badge rounded-pill bg-danger ms-2">{{ unread_notifications_count }}</span>{% endif %}</a></li>
+                        <li><a class="dropdown-item {% if request.resolver_match.url_name == 'ai_recommendations_page' or request.resolver_match.url_name == 'recommendation_debug_panel' %}active{% endif %}" href="{% url 'ai_recommendations_page' %}"><i class="bi bi-stars me-2"></i>AI Recommendations</a></li>
+                        <li><a class="dropdown-item {% if request.resolver_match.url_name == 'navigation_map' %}active{% endif %}" href="{% url 'navigation_map' %}"><i class="bi bi-diagram-3 me-2"></i>System Navigation Map</a></li>
+                        {% if is_manager_user %}
+                        <li><hr class="dropdown-divider"></li>
+                        <li><a class="dropdown-item {% if request.resolver_match.url_name == 'schedule_list' or request.resolver_match.url_name == 'schedule_delete' %}active{% endif %}" href="{% url 'schedule_list' %}"><i class="bi bi-calendar-week me-2"></i>Scheduling</a></li>
+                        <li><a class="dropdown-item {% if request.resolver_match.url_name == 'audit_logs' or request.resolver_match.url_name == 'delete_audit_log' %}active{% endif %}" href="{% url 'audit_logs' %}"><i class="bi bi-journal-check me-2"></i>Audit Logs</a></li>
+                        <li><a class="dropdown-item {% if request.resolver_match.url_name == 'create_staff_account' %}active{% endif %}" href="{% url 'create_staff_account' %}"><i class="bi bi-person-plus me-2"></i>Create Staff Account</a></li>
+                        <li><a class="dropdown-item {% if '/admin/' in request.path %}active{% endif %}" href="/admin/"><i class="bi bi-shield-lock me-2"></i>Admin Panel</a></li>
+                        <li><a class="dropdown-item {% if request.resolver_match.url_name == 'gallery_manage' %}active{% endif %}" href="{% url 'gallery_manage' %}"><i class="bi bi-images me-2"></i>Manage Gallery</a></li>
+                        {% endif %}
+                    </ul>
+                </li>
             </ul>
             <ul class="navbar-nav ms-auto align-items-xl-center">
-                <li class="nav-item"><a class="nav-link" href="{% url 'package_list' %}"><i class="bi bi-box-seam icon-packages"></i>Event Packages</a></li>
-                <li class="nav-item"><a class="nav-link" href="{% url 'my_orders' %}"><i class="bi bi-receipt icon-orders"></i>Orders</a></li>
-                <li class="nav-item"><a class="nav-link" href="{% url 'cart_view' %}"><i class="bi bi-cart-check icon-cart"></i>Cart Checkout</a></li>
-                <li class="nav-item"><a class="nav-link" href="{% url 'customize_cake' %}"><i class="bi bi-brush icon-customization"></i>Customization</a></li>
-                <li class="nav-item"><a class="nav-link" href="{% url 'my_payments' %}"><i class="bi bi-cash-coin icon-payments"></i>Payments</a></li>
-                <li class="nav-item"><a class="nav-link" href="{% url 'my_notifications' %}"><i class="bi bi-bell icon-notifications"></i>Notifications</a></li>
-                <li class="nav-item"><a class="nav-link" href="{% url 'ai_recommendations_page' %}"><i class="bi bi-stars icon-ai"></i>AI Recommendations</a></li>
                 <li class="nav-item"><a class="nav-link text-danger" href="{% url 'logout' %}"><i class="bi bi-box-arrow-right icon-logout"></i>Logout</a></li>
             </ul>
         </div>
@@ -161,7 +214,7 @@
     {% endblock %}
 </div>
 
-{% if request.path == '/products/home/' %}
+{% if request.resolver_match.url_name == 'customer_home' %}
 <div id="chatWidget" style="position: fixed; right: 20px; bottom: 20px; z-index: 1050;">
     <button id="chatToggle" class="btn btn-primary rounded-pill shadow">Chat with us</button>
     <div
@@ -252,7 +305,7 @@
                     <li>Use <a href="{% url 'customize_cake' %}">Cake Customization</a> and click <strong>Order Now</strong> or <strong>Add to Cart</strong>.</li>
                     <li>Open <a href="{% url 'cart_view' %}">Cart Checkout</a>, set booking details (event date must be at least 3 days ahead).</li>
                     <li>Complete payment in <a href="{% url 'my_payments' %}">Payments</a>.</li>
-                    <li>Track updates in <a href="{% url 'my_orders' %}">Orders</a> and <a href="{% url 'my_notifications' %}">Notifications</a>.</li>
+                    <li>Track updates in <a href="{% url 'my_orders' %}">Orders</a> and <a href="{% url 'my_notifications' %}?next={{ request.get_full_path|urlencode }}">Notifications</a>.</li>
                 </ol>
                 <a href="https://www.facebook.com/hanilies.cakeshoppe" target="_blank" rel="noopener noreferrer"><i class="bi bi-facebook me-1"></i>Facebook: Hanilie's Cakeshoppe</a>
             </div>

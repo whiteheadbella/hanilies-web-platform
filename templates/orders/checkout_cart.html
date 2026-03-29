@@ -8,6 +8,11 @@
             <div class="card-body">
                 <h5>Booking Details</h5>
                 <p class="text-muted">Event date must be at least 3 days before your event.</p>
+                {% if booking_prefilled and not confirmed_booking %}
+                <div class="alert alert-info py-2">
+                    Booking details were prefilled from your Event Details Form. You can edit them before confirming.
+                </div>
+                {% endif %}
                 {% if confirmed_booking %}
                 <div class="alert alert-success py-2">
                     Order #{{ confirmed_booking.order.id }} is confirmed.

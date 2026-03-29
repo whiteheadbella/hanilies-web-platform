@@ -1,0 +1,152 @@
+{% extends "base.html" %}
+
+{% block content %}
+<div class="container mt-4" style="max-width: 760px;">
+    <div class="d-flex align-items-center justify-content-between mb-3">
+        <h2 class="h4 mb-0">Create Staff Account</h2>
+        <a class="btn btn-outline-secondary btn-sm" href="{% url 'accounts_dashboard' %}">Back to Accounts Panel</a>
+    </div>
+
+    <div class="card shadow-sm">
+        <div class="card-body">
+            <p class="text-muted mb-3">This page is manager-only. New accounts created here are assigned as staff and added to the Manager group.</p>
+            <form method="post" novalidate>
+                {% csrf_token %}
+
+                {% if form.non_field_errors %}
+                <div class="alert alert-danger py-2">{{ form.non_field_errors }}</div>
+                {% endif %}
+
+                <div class="row g-3">
+                    <div class="col-md-6">
+                        <label class="form-label">Username</label>
+                        {{ form.username }}
+                        {% if form.username.errors %}<div class="text-danger small mt-1">{{ form.username.errors }}</div>{% endif %}
+                    </div>
+                    <div class="col-md-6">
+                        <label class="form-label">Email</label>
+                        {{ form.email }}
+                        {% if form.email.errors %}<div class="text-danger small mt-1">{{ form.email.errors }}</div>{% endif %}
+                    </div>
+                    <div class="col-md-6">
+                        <label class="form-label">First Name</label>
+                        {{ form.first_name }}
+                        {% if form.first_name.errors %}<div class="text-danger small mt-1">{{ form.first_name.errors }}</div>{% endif %}
+                    </div>
+                    <div class="col-md-6">
+                        <label class="form-label">Last Name</label>
+                        {{ form.last_name }}
+                        {% if form.last_name.errors %}<div class="text-danger small mt-1">{{ form.last_name.errors }}</div>{% endif %}
+                    </div>
+                    <div class="col-md-6">
+                        <label class="form-label">Password</label>
+                        {{ form.password1 }}
+                        {% if form.password1.errors %}<div class="text-danger small mt-1">{{ form.password1.errors }}</div>{% endif %}
+                    </div>
+                    <div class="col-md-6">
+                        <label class="form-label">Confirm Password</label>
+                        {{ form.password2 }}
+                        {% if form.password2.errors %}<div class="text-danger small mt-1">{{ form.password2.errors }}</div>{% endif %}
+                    </div>
+                </div>
+
+                <div class="mt-4 d-flex gap-2">
+                    <button class="btn btn-primary" type="submit">Create Staff Account</button>
+                    <a class="btn btn-outline-secondary" href="{% url 'accounts_dashboard' %}">Cancel</a>
+                </div>
+            </form>
+        </div>
+    </div>
+
+    <div class="card shadow-sm mt-4">
+        <div class="card-body">
+            <h3 class="h6 mb-3">Recent Staff Accounts</h3>
+            {% if recent_staff %}
+            <div class="table-responsive">
+                <table class="table table-sm align-middle mb-0">
+                    <thead>
+                        <tr>
+                            <th>Username</th>
+                            <th>Name</th>
+                            <th>Email</th>
+                            <th>Joined</th>
+                            <th>Status</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        {% for staff_user in recent_staff %}
+                        <tr>
+                            <td>{{ staff_user.username }}</td>
+                            <td>{{ staff_user.get_full_name|default:"-" }}</td>
+                            <td>{{ staff_user.email|default:"-" }}</td>
+                            <td>{{ staff_user.date_joined|date:"Y-m-d H:i" }}</td>
+                            <td>
+                                {% if staff_user.is_active %}
+                                <span class="badge bg-success">Active</span>
+                                {% else %}
+                                <span class="badge bg-secondary">Inactive</span>
+                                {% endif %}
+                            </td>
+                        </tr>
+                        {% endfor %}
+                    </tbody>
+                </table>
+            </div>
+            {% else %}
+            <p class="text-muted mb-0">No staff accounts created yet.</p>
+            {% endif %}
+        </div>
+    </div>
+
+    <div class="card shadow-sm mt-4">
+        <div class="card-body">
+            <h3 class="h6 mb-3">Search Customer Accounts</h3>
+            <form method="get" class="row g-2 mb-3">
+                <div class="col-md-9">
+                    <input
+                        type="text"
+                        name="q"
+                        value="{{ search_query }}"
+                        class="form-control"
+                        placeholder="Search by username or email"
+                    >
+                </div>
+                <div class="col-md-3 d-grid">
+                    <button type="submit" class="btn btn-outline-primary">Search</button>
+                </div>
+            </form>
+
+            {% if search_query %}
+                {% if customer_results %}
+                <div class="table-responsive">
+                    <table class="table table-sm align-middle mb-0">
+                        <thead>
+                            <tr>
+                                <th>Username</th>
+                                <th>Name</th>
+                                <th>Email</th>
+                                <th>Joined</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            {% for customer in customer_results %}
+                            <tr>
+                                <td>{{ customer.username }}</td>
+                                <td>{{ customer.get_full_name|default:"-" }}</td>
+                                <td>{{ customer.email|default:"-" }}</td>
+                                <td>{{ customer.date_joined|date:"Y-m-d H:i" }}</td>
+                            </tr>
+                            {% endfor %}
+                        </tbody>
+                    </table>
+                </div>
+                {% else %}
+                <p class="text-muted mb-0">No customer account matched "{{ search_query }}".</p>
+                {% endif %}
+            {% else %}
+            <p class="text-muted mb-0">Enter a username or email to search customer accounts.</p>
+            {% endif %}
+        </div>
+    </div>
+</div>
+{% endblock %}

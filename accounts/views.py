@@ -2,11 +2,13 @@ from django.contrib.auth import authenticate, login, logout
 from django.contrib.auth.decorators import login_required
 from django.contrib.auth.forms import AuthenticationForm
 from django.contrib.auth.models import Group
+from django.db.models import Q
+from django.contrib import messages
 from django.shortcuts import get_object_or_404, redirect, render
 
 from audit.services import log_user_action
 
-from .forms import CustomerRegisterForm, DeliveryProfileForm
+from .forms import CustomerRegisterForm, DeliveryProfileForm, StaffCreateForm
 from .models import DeliveryProfile
 from .permissions import is_manager
 
@@ -52,6 +54,15 @@ def accounts_hub(request):
 
 
 @login_required
+def navigation_map(request):
+    return render(
+        request,
+        "accounts/navigation_map.html",
+        {"is_manager": is_manager(request.user)},
+    )
+
+
+@login_required
 def my_account_dashboard(request):
     profile_count = DeliveryProfile.objects.filter(user=request.user).count()
     return render(
@@ -70,6 +81,61 @@ def accounts_dashboard(request):
         request,
         "accounts/dashboard_tabs.html",
         {"can_open_admin": can_open_admin},
+    )
+
+
+@login_required
+def create_staff_account(request):
+    if not is_manager(request.user):
+        return render(request, "access_denied.html")
+
+    form = StaffCreateForm(request.POST or None)
+    if request.method == "POST" and form.is_valid():
+        user = form.save(commit=False)
+        user.is_staff = True
+        user.is_superuser = False
+        user.save()
+
+        manager_group, _ = Group.objects.get_or_create(name="Manager")
+        user.groups.add(manager_group)
+
+        log_user_action(
+            request.user,
+            f"Created staff account: {user.username}",
+        )
+        messages.success(
+            request,
+            f"Staff account '{user.username}' created successfully.",
+        )
+        return redirect("create_staff_account")
+
+    recent_staff = (
+        Group.objects.get_or_create(name="Manager")[0]
+        .user_set.filter(is_staff=True)
+        .order_by("-date_joined")[:10]
+    )
+
+    search_query = (request.GET.get("q") or "").strip()
+    customer_results = []
+    if search_query:
+        customer_results = (
+            Group.objects.get_or_create(name="Customer")[0]
+            .user_set.filter(
+                Q(username__icontains=search_query)
+                | Q(email__icontains=search_query)
+            )
+            .order_by("username")[:25]
+        )
+
+    return render(
+        request,
+        "accounts/create_staff_account.html",
+        {
+            "form": form,
+            "recent_staff": recent_staff,
+            "search_query": search_query,
+            "customer_results": customer_results,
+        },
     )
 
 

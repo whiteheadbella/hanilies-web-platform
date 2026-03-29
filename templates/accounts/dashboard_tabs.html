@@ -4,7 +4,10 @@
 <div class="container mt-4">
     <div class="d-flex align-items-center justify-content-between mb-3">
         <h2 class="h4 mb-0">Accounts Control Panel</h2>
-        <span class="badge bg-primary">Admin/Staff Access</span>
+        <div class="d-flex align-items-center gap-2">
+            <a class="btn btn-outline-secondary btn-sm" href="{% url 'navigation_map' %}">System Map</a>
+            <span class="badge bg-primary">Admin/Staff Access</span>
+        </div>
     </div>
 
     <ul class="nav nav-tabs" id="accountsTabs" role="tablist">
@@ -67,15 +70,19 @@
             <p class="text-muted mb-3">Open the Django admin site for full system administration.</p>
             <div class="d-flex gap-2">
                 <a class="btn btn-primary btn-sm" href="/admin/">Open Admin Panel</a>
+                <a class="btn btn-outline-secondary btn-sm" href="{% url 'create_staff_account' %}">Create Staff Account</a>
                 <a class="btn btn-success btn-sm" href="{% url 'accounts_dashboard' %}">
                     <i class="bi bi-arrow-left me-1"></i>Back
                 </a>
             </div>
             {% else %}
-            <p class="text-muted mb-0">Your account does not have admin panel access.</p>
-            <a class="btn btn-success btn-sm mt-2" href="{% url 'accounts_dashboard' %}">
-                <i class="bi bi-arrow-left me-1"></i>Back
-            </a>
+            <p class="text-muted mb-2">Your account does not have full admin panel access.</p>
+            <div class="d-flex gap-2">
+                <a class="btn btn-outline-secondary btn-sm" href="{% url 'create_staff_account' %}">Create Staff Account</a>
+                <a class="btn btn-success btn-sm" href="{% url 'accounts_dashboard' %}">
+                    <i class="bi bi-arrow-left me-1"></i>Back
+                </a>
+            </div>
             {% endif %}
         </div>
     </div>
