@@ -1,28 +1,9 @@
-# HANILIE'S CAKESHOPPE EVENT MANAGEMENT AND ORDERING PLATFORM
+# HANILIE'S CAKESHOPPE EVENT MANAGEMENT PLATFORM
 
 CAPSTONE MANUSCRIPT
 
-Chapters 1 to 3
+Chapters I, II, III
 
-Submitted to:
-
-[Name of School]
-
-[College/Department]
-
-In Partial Fulfillment of the Requirements for the Degree
-
-[Degree Program]
-
-Submitted by:
-
-[Researcher Name/s]
-
-[Month Year]
-
-Adviser:
-
-[Adviser Name]
 
 ---
 
