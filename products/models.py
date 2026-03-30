@@ -34,7 +34,13 @@ class AddOnItem(models.Model):
     )
 
     def __str__(self):
-        return f"{self.category.name} - {self.name}"
+        category_label = "Uncategorized"
+        if self.category_id:
+            try:
+                category_label = str(self.category)
+            except Exception:
+                category_label = f"Category #{self.category_id}"
+        return f"{category_label} - {self.name}"
 
 
 # -------------------------

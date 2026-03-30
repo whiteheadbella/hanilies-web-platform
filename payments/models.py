@@ -12,4 +12,5 @@ class Payment(models.Model):
     created_at = models.DateTimeField(default=timezone.now)
 
     def __str__(self):
-        return f"Payment for Order #{self.booking.order.id}"
+        booking_label = self.booking_id if self.booking_id else "Unknown"
+        return f"Payment for Booking #{booking_label}"

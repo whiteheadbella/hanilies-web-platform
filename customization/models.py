@@ -1,6 +1,7 @@
 from django.db import models
 from products.models import Cake, AddOnItem
 
+
 class Customization(models.Model):
     cake = models.ForeignKey(Cake, on_delete=models.CASCADE)
 
@@ -17,7 +18,8 @@ class Customization(models.Model):
     ]
 
     size = models.CharField(max_length=50, choices=SIZE_CHOICES)
-    layers = models.CharField(max_length=10, choices=LAYER_CHOICES, default="1")
+    layers = models.CharField(
+        max_length=10, choices=LAYER_CHOICES, default="1")
 
     quantity = models.PositiveIntegerField(default=1)  # NEW
 
@@ -39,4 +41,5 @@ class Customization(models.Model):
     created_at = models.DateTimeField(auto_now_add=True)
 
     def __str__(self):
-        return f"Customization for {self.cake.name}"
+        cake_label = f"Cake #{self.cake_id}" if self.cake_id else "Unknown Cake"
+        return f"Customization for {cake_label}"

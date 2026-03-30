@@ -9,4 +9,5 @@ class UserActionLog(models.Model):
     timestamp = models.DateTimeField(auto_now_add=True)
 
     def __str__(self):
-        return f"{self.user.username} - {self.action} @ {self.timestamp}"
+        user_label = f"User #{self.user_id}" if self.user_id else "Unknown User"
+        return f"{user_label} - {self.action} @ {self.timestamp}"

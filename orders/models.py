@@ -48,7 +48,8 @@ class OrderDetail(models.Model):
     price = models.DecimalField(max_digits=10, decimal_places=2)
 
     def __str__(self):
-        return f"Order #{self.order.id} Item"
+        order_label = self.order_id if self.order_id else "Unknown"
+        return f"Order #{order_label} Item"
 
 
 class Booking(models.Model):
@@ -78,7 +79,8 @@ class Booking(models.Model):
         super().save(*args, **kwargs)
 
     def __str__(self):
-        return f"Booking for Order #{self.order.id}"
+        order_label = self.order_id if self.order_id else "Unknown"
+        return f"Booking for Order #{order_label}"
 
 
 class CartItem(models.Model):
@@ -106,4 +108,5 @@ class CartItem(models.Model):
         return self.unit_price * self.quantity
 
     def __str__(self):
-        return f"CartItem #{self.id} ({self.customer.username})"
+        customer_label = f"User #{self.customer_id}" if self.customer_id else "Unknown User"
+        return f"CartItem #{self.id} ({customer_label})"
