@@ -37,3 +37,7 @@ services:
         sync: false
       - key: CLOUDINARY_API_SECRET
         sync: false
+      - key: CLOUDINARY_URL
+        sync: false
+      - key: USE_CLOUDINARY_MEDIA
+        value: "True"
