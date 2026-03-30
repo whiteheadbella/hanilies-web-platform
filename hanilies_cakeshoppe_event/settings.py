@@ -44,9 +44,18 @@ if render_external_hostname and render_external_hostname not in ALLOWED_HOSTS:
 CLOUDINARY_CLOUD_NAME = config('CLOUDINARY_CLOUD_NAME', default='')
 CLOUDINARY_API_KEY = config('CLOUDINARY_API_KEY', default='')
 CLOUDINARY_API_SECRET = config('CLOUDINARY_API_SECRET', default='')
-USE_CLOUDINARY_MEDIA = all(
-    [CLOUDINARY_CLOUD_NAME, CLOUDINARY_API_KEY, CLOUDINARY_API_SECRET]
-)
+CLOUDINARY_URL = config('CLOUDINARY_URL', default='')
+
+use_cloudinary_override = config(
+    'USE_CLOUDINARY_MEDIA', default='', cast=str).strip().lower()
+if use_cloudinary_override in ('1', 'true', 'yes', 'on'):
+    USE_CLOUDINARY_MEDIA = True
+elif use_cloudinary_override in ('0', 'false', 'no', 'off'):
+    USE_CLOUDINARY_MEDIA = False
+else:
+    USE_CLOUDINARY_MEDIA = bool(CLOUDINARY_URL) or all(
+        [CLOUDINARY_CLOUD_NAME, CLOUDINARY_API_KEY, CLOUDINARY_API_SECRET]
+    )
 
 
 # Application definition
@@ -77,11 +86,16 @@ if USE_CLOUDINARY_MEDIA:
         'cloudinary_storage',
     ]
 
-    CLOUDINARY_STORAGE = {
-        'CLOUD_NAME': CLOUDINARY_CLOUD_NAME,
-        'API_KEY': CLOUDINARY_API_KEY,
-        'API_SECRET': CLOUDINARY_API_SECRET,
-    }
+    if CLOUDINARY_URL:
+        os.environ.setdefault('CLOUDINARY_URL', CLOUDINARY_URL)
+
+    CLOUDINARY_STORAGE = {}
+    if CLOUDINARY_CLOUD_NAME:
+        CLOUDINARY_STORAGE['CLOUD_NAME'] = CLOUDINARY_CLOUD_NAME
+    if CLOUDINARY_API_KEY:
+        CLOUDINARY_STORAGE['API_KEY'] = CLOUDINARY_API_KEY
+    if CLOUDINARY_API_SECRET:
+        CLOUDINARY_STORAGE['API_SECRET'] = CLOUDINARY_API_SECRET
 
     DEFAULT_FILE_STORAGE = 'cloudinary_storage.storage.MediaCloudinaryStorage'
 

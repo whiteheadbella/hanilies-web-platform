@@ -1,4 +1,6 @@
 from django.contrib import admin
+from django.db import DatabaseError
+from django.db.utils import OperationalError, ProgrammingError
 from .models import (
     SeasonTag,
     CakeCategory,
@@ -10,6 +12,36 @@ from .models import (
     AddOnCategory,
     AddOnItem
 )
+
+
+class SeasonTagSafeAdminMixin:
+    season_tag_field_name = "season_tags"
+
+    def _season_tag_schema_ready(self):
+        try:
+            SeasonTag.objects.only("id").exists()
+            return True
+        except (ProgrammingError, OperationalError, DatabaseError):
+            return False
+
+    def get_form(self, request, obj=None, change=False, **kwargs):
+        form = super().get_form(request, obj, change, **kwargs)
+        if (
+            self.season_tag_field_name in form.base_fields
+            and not self._season_tag_schema_ready()
+        ):
+            form.base_fields.pop(self.season_tag_field_name, None)
+        return form
+
+    def get_list_filter(self, request):
+        filters = list(super().get_list_filter(request))
+        if not self._season_tag_schema_ready():
+            filters = [
+                item
+                for item in filters
+                if item != self.season_tag_field_name
+            ]
+        return tuple(filters)
 
 
 # -------------------------
@@ -34,7 +66,7 @@ class CakeCategoryAdmin(admin.ModelAdmin):
 # CAKE ADMIN
 # -------------------------
 @admin.register(Cake)
-class CakeAdmin(admin.ModelAdmin):
+class CakeAdmin(SeasonTagSafeAdminMixin, admin.ModelAdmin):
     list_display = ("id", "name", "category", "size", "flavor", "base_price")
     list_filter = ("category", "season_tags")
     search_fields = ("name", "flavor")
@@ -61,7 +93,7 @@ class EventPackageItemInline(admin.TabularInline):
 
 
 @admin.register(EventPackage)
-class EventPackageAdmin(admin.ModelAdmin):
+class EventPackageAdmin(SeasonTagSafeAdminMixin, admin.ModelAdmin):
     list_display = (
         "id",
         "category",
