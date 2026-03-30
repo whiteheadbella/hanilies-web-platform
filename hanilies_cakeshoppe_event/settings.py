@@ -244,3 +244,28 @@ DATA_UPLOAD_MAX_MEMORY_SIZE = config(
 FILE_UPLOAD_MAX_MEMORY_SIZE = config(
     "FILE_UPLOAD_MAX_MEMORY_SIZE", default=10485760, cast=int
 )
+
+
+# Ensure production exceptions are visible in platform logs.
+DJANGO_LOG_LEVEL = config("DJANGO_LOG_LEVEL", default="INFO")
+LOGGING = {
+    "version": 1,
+    "disable_existing_loggers": False,
+    "handlers": {
+        "console": {
+            "class": "logging.StreamHandler",
+        },
+    },
+    "loggers": {
+        "django": {
+            "handlers": ["console"],
+            "level": DJANGO_LOG_LEVEL,
+            "propagate": True,
+        },
+        "django.request": {
+            "handlers": ["console"],
+            "level": "ERROR",
+            "propagate": False,
+        },
+    },
+}
