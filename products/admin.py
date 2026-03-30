@@ -17,12 +17,33 @@ from .models import (
 class SeasonTagSafeAdminMixin:
     season_tag_field_name = "season_tags"
 
-    def _season_tag_schema_ready(self):
+    def _model_schema_ready(self, model):
         try:
-            SeasonTag.objects.only("id").exists()
+            model._default_manager.only("pk").exists()
             return True
         except (ProgrammingError, OperationalError, DatabaseError):
             return False
+
+    def _season_tag_schema_ready(self):
+        return self._model_schema_ready(SeasonTag)
+
+    def formfield_for_foreignkey(self, db_field, request, **kwargs):
+        formfield = super().formfield_for_foreignkey(db_field, request, **kwargs)
+        related_model = getattr(
+            getattr(db_field, "remote_field", None), "model", None)
+        if related_model and hasattr(formfield, "queryset"):
+            if not self._model_schema_ready(related_model):
+                formfield.queryset = related_model._default_manager.none()
+        return formfield
+
+    def formfield_for_manytomany(self, db_field, request, **kwargs):
+        formfield = super().formfield_for_manytomany(db_field, request, **kwargs)
+        related_model = getattr(
+            getattr(db_field, "remote_field", None), "model", None)
+        if related_model and hasattr(formfield, "queryset"):
+            if not self._model_schema_ready(related_model):
+                formfield.queryset = related_model._default_manager.none()
+        return formfield
 
     def get_form(self, request, obj=None, change=False, **kwargs):
         form = super().get_form(request, obj, change, **kwargs)
