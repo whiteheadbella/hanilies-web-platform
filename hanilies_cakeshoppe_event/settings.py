@@ -47,15 +47,18 @@ CLOUDINARY_API_SECRET = config('CLOUDINARY_API_SECRET', default='')
 CLOUDINARY_URL = config('CLOUDINARY_URL', default='')
 
 use_cloudinary_override = config(
-    'USE_CLOUDINARY_MEDIA', default='', cast=str).strip().lower()
+    'USE_CLOUDINARY_MEDIA', default='', cast=str
+).strip().lower()
+cloudinary_credentials_ready = bool(CLOUDINARY_URL) or all(
+    [CLOUDINARY_CLOUD_NAME, CLOUDINARY_API_KEY, CLOUDINARY_API_SECRET]
+)
 if use_cloudinary_override in ('1', 'true', 'yes', 'on'):
-    USE_CLOUDINARY_MEDIA = True
+    # Force only when credentials exist; avoids runtime 500s from incomplete config.
+    USE_CLOUDINARY_MEDIA = cloudinary_credentials_ready
 elif use_cloudinary_override in ('0', 'false', 'no', 'off'):
     USE_CLOUDINARY_MEDIA = False
 else:
-    USE_CLOUDINARY_MEDIA = bool(CLOUDINARY_URL) or all(
-        [CLOUDINARY_CLOUD_NAME, CLOUDINARY_API_KEY, CLOUDINARY_API_SECRET]
-    )
+    USE_CLOUDINARY_MEDIA = cloudinary_credentials_ready
 
 
 # Application definition
@@ -75,9 +78,6 @@ INSTALLED_APPS = [
     'payments',
     'notifications',
     'audit',
-
-
-
 ]
 
 if USE_CLOUDINARY_MEDIA:
