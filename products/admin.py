@@ -1,8 +1,6 @@
 from django.contrib import admin
 from django.contrib.admin.widgets import AdminFileWidget
 from django.core.exceptions import FieldDoesNotExist
-from django.db import DatabaseError
-from django.db.utils import OperationalError, ProgrammingError
 
 from .models import (
     AddOnCategory,
@@ -26,8 +24,22 @@ class SeasonTagSafeAdminMixin:
         try:
             model._default_manager.only("pk").exists()
             return True
-        except (ProgrammingError, OperationalError, DatabaseError):
+        except Exception:
             return False
+
+    def _none_queryset_for(self, model):
+        try:
+            return model._default_manager.none()
+        except Exception:
+            return model.objects.none()
+
+    def _fallback_relation_formfield(self, db_field, related_model, **kwargs):
+        if related_model:
+            kwargs.setdefault("queryset", self._none_queryset_for(related_model))
+        try:
+            return db_field.formfield(**kwargs)
+        except Exception:
+            return None
 
     def _season_tag_schema_ready(self):
         if not self._model_schema_ready(SeasonTag):
@@ -46,19 +58,27 @@ class SeasonTagSafeAdminMixin:
         return True
 
     def formfield_for_foreignkey(self, db_field, request, **kwargs):
-        formfield = super().formfield_for_foreignkey(db_field, request, **kwargs)
         related_model = getattr(getattr(db_field, "remote_field", None), "model", None)
+        try:
+            formfield = super().formfield_for_foreignkey(db_field, request, **kwargs)
+        except Exception:
+            return self._fallback_relation_formfield(db_field, related_model, **kwargs)
+
         if related_model and hasattr(formfield, "queryset"):
             if not self._model_schema_ready(related_model):
-                formfield.queryset = related_model._default_manager.none()
+                formfield.queryset = self._none_queryset_for(related_model)
         return formfield
 
     def formfield_for_manytomany(self, db_field, request, **kwargs):
-        formfield = super().formfield_for_manytomany(db_field, request, **kwargs)
         related_model = getattr(getattr(db_field, "remote_field", None), "model", None)
+        try:
+            formfield = super().formfield_for_manytomany(db_field, request, **kwargs)
+        except Exception:
+            return self._fallback_relation_formfield(db_field, related_model, **kwargs)
+
         if related_model and hasattr(formfield, "queryset"):
             if not self._model_schema_ready(related_model):
-                formfield.queryset = related_model._default_manager.none()
+                formfield.queryset = self._none_queryset_for(related_model)
 
         through_model = getattr(getattr(db_field, "remote_field", None), "through", None)
         if (
@@ -67,7 +87,7 @@ class SeasonTagSafeAdminMixin:
             and hasattr(formfield, "queryset")
             and not self._model_schema_ready(through_model)
         ):
-            formfield.queryset = related_model._default_manager.none()
+            formfield.queryset = self._none_queryset_for(related_model)
         return formfield
 
     def get_form(self, request, obj=None, change=False, **kwargs):
