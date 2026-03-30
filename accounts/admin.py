@@ -1,6 +1,7 @@
 from django.contrib import admin
 from django.contrib.admin.sites import NotRegistered
 from django.contrib.auth.models import Group, Permission
+from django.contrib.auth import get_user_model
 from django.db import DatabaseError
 from django.db.utils import OperationalError, ProgrammingError
 from .models import DeliveryProfile
@@ -9,7 +10,41 @@ from .models import DeliveryProfile
 admin.site.site_header = "Hanilies Cakeshoppe Administration"
 admin.site.site_title = "Hanilies Cakeshoppe Admin"
 admin.site.index_title = "Welcome to Hanilies Cakeshoppe Management System"
-admin.site.register(DeliveryProfile)
+
+
+class SafeQueryAdminMixin:
+    """Prevent admin pages from crashing when DB relations are temporarily broken."""
+
+    def get_queryset(self, request):
+        try:
+            return super().get_queryset(request)
+        except Exception:
+            return self.model._default_manager.none()
+
+    def formfield_for_foreignkey(self, db_field, request, **kwargs):
+        related_model = getattr(getattr(db_field, "remote_field", None), "model", None)
+        try:
+            return super().formfield_for_foreignkey(db_field, request, **kwargs)
+        except Exception:
+            if related_model:
+                kwargs.setdefault("queryset", related_model._default_manager.none())
+            try:
+                return db_field.formfield(**kwargs)
+            except Exception:
+                return None
+
+
+@admin.register(DeliveryProfile)
+class DeliveryProfileAdmin(SafeQueryAdminMixin, admin.ModelAdmin):
+    list_display = ("id", "user", "full_name", "city", "is_default", "created_at")
+    list_filter = ("is_default", "city", "province")
+    search_fields = ("full_name", "phone", "city", "user__username")
+
+    def formfield_for_foreignkey(self, db_field, request, **kwargs):
+        if db_field.name == "user":
+            user_model = get_user_model()
+            kwargs.setdefault("queryset", user_model.objects.order_by("username"))
+        return super().formfield_for_foreignkey(db_field, request, **kwargs)
 
 
 class SafeGroupAdmin(admin.ModelAdmin):
