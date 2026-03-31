@@ -77,10 +77,35 @@ class CheckoutFlowTests(TestCase):
             target_date.isoformat(),
         )
 
-    def test_checkout_uses_selected_delivery_profile_snapshot(self):
+    def test_checkout_prefills_delivery_address_from_saved_profile(self):
         self.client.force_login(self.user)
-        self._create_profile(is_default=True)
-        selected_profile = self._create_profile(
+        self._create_profile(
+            house_no="12",
+            street="Mabini St",
+            barangay="San Isidro",
+            city="Pasig",
+            province="Metro Manila",
+            is_default=True,
+        )
+        CartItem.objects.create(
+            customer=self.user,
+            package=self.package,
+            quantity=1,
+            unit_price=self.package.base_price,
+        )
+
+        response = self.client.get(reverse("checkout_cart"))
+
+        self.assertEqual(response.status_code, 200)
+        self.assertTrue(response.context["form"].delivery_address_autofilled)
+        self.assertEqual(
+            response.context["form"].initial.get("delivery_address"),
+            "12, Mabini St, San Isidro, Pasig, Metro Manila",
+        )
+
+    def test_checkout_uses_manual_delivery_address_with_saved_contact_snapshot(self):
+        self.client.force_login(self.user)
+        self._create_profile(
             full_name="Maria Santos",
             phone="09171112222",
             house_no="88",
@@ -89,6 +114,7 @@ class CheckoutFlowTests(TestCase):
             city="Marikina",
             province="Metro Manila",
             landmark="City Hall",
+            is_default=True,
         )
         CartItem.objects.create(
             customer=self.user,
@@ -104,7 +130,7 @@ class CheckoutFlowTests(TestCase):
                 "event_date": event_date.isoformat(),
                 "event_time": "13:30",
                 "venue": "Client Venue",
-                "delivery_profile": selected_profile.id,
+                "delivery_address": "Unit 5, Sunset Homes, Marikina, Metro Manila",
             },
             follow=True,
         )
@@ -115,5 +141,5 @@ class CheckoutFlowTests(TestCase):
         self.assertEqual(booking.delivery_phone, "09171112222")
         self.assertEqual(
             booking.delivery_address,
-            "88, Rizal Ave, Poblacion, Marikina, Metro Manila",
+            "Unit 5, Sunset Homes, Marikina, Metro Manila",
         )

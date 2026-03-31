@@ -5,6 +5,7 @@ from django.contrib.auth.models import Group
 from django.db.models import Q
 from django.contrib import messages
 from django.shortcuts import get_object_or_404, redirect, render
+from django.utils.http import url_has_allowed_host_and_scheme
 
 from audit.services import log_user_action
 
@@ -13,7 +14,26 @@ from .models import DeliveryProfile
 from .permissions import is_manager
 
 
+def _get_safe_next_url(request):
+    next_url = (request.POST.get("next") or request.GET.get("next") or "").strip()
+    if next_url and url_has_allowed_host_and_scheme(
+        next_url,
+        allowed_hosts={request.get_host()},
+        require_https=request.is_secure(),
+    ):
+        return next_url
+    return ""
+
+
 def login_view(request):
+    next_url = _get_safe_next_url(request)
+    if request.user.is_authenticated:
+        if next_url:
+            return redirect(next_url)
+        if is_manager(request.user):
+            return redirect("manager_dashboard")
+        return redirect("customer_home")
+
     form = AuthenticationForm(request, data=request.POST or None)
     if request.method == "POST" and form.is_valid():
         username = form.cleaned_data["username"]
@@ -22,22 +42,27 @@ def login_view(request):
         if user is not None:
             login(request, user)
             log_user_action(user, "Logged in")
+            if next_url:
+                return redirect(next_url)
             if is_manager(user):
                 return redirect("manager_dashboard")
             return redirect("customer_home")
-    return render(request, "accounts/login.html", {"form": form})
+    return render(request, "accounts/login.html", {"form": form, "next": next_url})
 
 
 def register_view(request):
     form = CustomerRegisterForm(request.POST or None)
+    next_url = _get_safe_next_url(request)
     if request.method == "POST" and form.is_valid():
         user = form.save()
         group, _ = Group.objects.get_or_create(name="Customer")
         user.groups.add(group)
         login(request, user)
         log_user_action(user, "Registered account")
+        if next_url:
+            return redirect(next_url)
         return redirect("customer_home")
-    return render(request, "accounts/register.html", {"form": form})
+    return render(request, "accounts/register.html", {"form": form, "next": next_url})
 
 
 def logout_view(request):

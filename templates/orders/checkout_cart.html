@@ -13,6 +13,11 @@
                     Booking details were prefilled from your Event Details Form. You can edit them before confirming.
                 </div>
                 {% endif %}
+                {% if form.delivery_address_autofilled and not confirmed_booking %}
+                <div class="alert alert-info py-2">
+                    Delivery address was auto-filled from your saved address. You can edit it if needed.
+                </div>
+                {% endif %}
                 {% if confirmed_booking %}
                 <div class="alert alert-success py-2">
                     Order #{{ confirmed_booking.order.id }} is confirmed.

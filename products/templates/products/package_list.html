@@ -5,7 +5,7 @@
     <section class="card shadow-sm mb-4">
         <div class="card-body">
             <h2 class="h5 mb-3">Event Details Form</h2>
-            <p class="text-muted small mb-3">Please complete required details first, then browse and filter event packages.</p>
+            <p class="text-muted small mb-3">Complete your event details here, then browse and filter the event packages below.</p>
             <form method="post" novalidate>
                 {% csrf_token %}
                 <input type="hidden" name="form_type" value="event_package_inquiry">
@@ -44,7 +44,7 @@
 
                 <div class="mt-3 d-flex gap-2">
                     <button type="submit" class="btn btn-primary">Save and Browse Packages</button>
-                    {% if form_completed %}
+                    {% if has_saved_event_details %}
                     <a href="{% url 'package_list' %}?reset_details=1" class="btn btn-outline-secondary">Clear Details</a>
                     {% endif %}
                 </div>
@@ -53,7 +53,6 @@
         </div>
     </section>
 
-    {% if form_completed %}
     <section id="package-browser" class="mb-4">
         <div class="d-flex flex-wrap align-items-center justify-content-between gap-2 mb-3">
             <a class="btn btn-success btn-sm" href="{% url 'customer_home' %}">
@@ -203,9 +202,6 @@
         <p class="text-muted">No event packages available for this category.</p>
         {% endif %}
     </section>
-    {% else %}
-    <div class="alert alert-info">Complete the required event details form above to unlock package browsing.</div>
-    {% endif %}
 </div>
 
 <script>

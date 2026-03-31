@@ -92,6 +92,35 @@ def customer_home(request):
                 set_map[key]["image"] = p.image
 
     featured_sets = list(set_map.values())[:8]
+    month_number = datetime.now().month
+    month = datetime.now().strftime("%B")
+    month_occasions = get_month_occasions(month_number)
+    homepage_ai_recommendations = get_rule_based_package_recommendations(
+        request.user, month_occasions, limit=3
+    )
+
+    if not homepage_ai_recommendations:
+        fallback_packages = list(get_monthly_package_recommendations(month_number))
+        homepage_ai_recommendations = [
+            {
+                "package": pkg,
+                "match_score": 75,
+                "reasons": ["Seasonal fallback recommendation"],
+            }
+            for pkg in fallback_packages
+        ]
+
+    has_personalized_history = request.user.is_authenticated and any(
+        "Based on your previous orders" in reason
+        for rec in homepage_ai_recommendations
+        for reason in rec.get("reasons", [])
+    )
+    homepage_recommendation_basis = (
+        "Personalized using previous orders and best-selling items"
+        if has_personalized_history
+        else "Based on seasonal trends and best-selling items"
+    )
+
     hero_photo = GalleryPhoto.objects.filter(
         is_hero=True,
         is_active=True,
@@ -114,6 +143,10 @@ def customer_home(request):
             "featured_sets": featured_sets,
             "hero_image": hero_image,
             "hero_upload_form": hero_upload_form,
+            "homepage_ai_recommendations": homepage_ai_recommendations,
+            "homepage_recommendation_basis": homepage_recommendation_basis,
+            "homepage_recommendation_month": month,
+            "homepage_month_occasions": month_occasions,
         },
     )
 
@@ -603,6 +636,8 @@ def gallery_manage(request):
 def package_list(request):
     inquiry_session_key = "event_package_inquiry"
     saved_inquiry = request.session.get(inquiry_session_key, {})
+    can_bypass_event_details = is_manager(request.user)
+    has_saved_event_details = bool(saved_inquiry)
 
     if request.GET.get("reset_details") == "1":
         request.session.pop(inquiry_session_key, None)
@@ -623,7 +658,7 @@ def package_list(request):
     else:
         event_inquiry_form = EventPackageInquiryForm(initial=saved_inquiry)
 
-    form_completed = bool(saved_inquiry)
+    form_completed = has_saved_event_details or can_bypass_event_details
 
     packages = (
         EventPackage.objects.select_related("category")
@@ -741,6 +776,8 @@ def package_list(request):
             "package_sets": package_sets,
             "event_inquiry_form": event_inquiry_form,
             "form_completed": form_completed,
+            "has_saved_event_details": has_saved_event_details,
+            "can_bypass_event_details": can_bypass_event_details,
             "category_options": category_options,
             "selected_category": selected_category,
         },

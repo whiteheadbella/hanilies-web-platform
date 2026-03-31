@@ -18,6 +18,9 @@
             <a href="{% url 'package_list' %}" class="btn rounded-pill mt-3 px-4" style="background:#c4942a;color:#fff;font-weight:600;">
                 Try AI Recommendations
             </a>
+            <a href="{% url 'customer_home' %}" class="btn btn-outline-secondary rounded-pill mt-3 px-4 ms-2">
+                Back to Homepage
+            </a>
             {% if request.user.is_authenticated and is_manager_user %}
             <a href="{% url 'recommendation_debug_panel' %}" class="btn btn-outline-secondary rounded-pill mt-3 px-4 ms-2">
                 Open Recommendation Debug

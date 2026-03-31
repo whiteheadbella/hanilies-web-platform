@@ -1,87 +1,736 @@
 {% extends "base.html" %}
 
+{% block body_class %}landing-page{% endblock %}
+
+{% block extra_head %}
+<style>
+    @import url('https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;500;600;700;800&display=swap');
+
+    html {
+        scroll-behavior: smooth;
+    }
+
+    body.landing-page {
+        background:
+            radial-gradient(circle at top left, rgba(255, 182, 208, 0.32), transparent 36%),
+            radial-gradient(circle at top right, rgba(255, 232, 176, 0.35), transparent 32%),
+            linear-gradient(180deg, #fffdfd 0%, #fff6f9 48%, #fffaf8 100%);
+        color: #172d57;
+        font-family: "Plus Jakarta Sans", "Segoe UI", sans-serif;
+    }
+
+    .home-landing {
+        position: relative;
+        width: 100vw;
+        margin-left: calc(50% - 50vw);
+        margin-right: calc(50% - 50vw);
+        overflow: hidden;
+    }
+
+    .home-landing::before,
+    .home-landing::after {
+        content: "";
+        position: absolute;
+        border-radius: 999px;
+        filter: blur(10px);
+        opacity: 0.85;
+        pointer-events: none;
+    }
+
+    .home-landing::before {
+        width: 420px;
+        height: 420px;
+        top: 130px;
+        right: -110px;
+        background: radial-gradient(circle, rgba(255, 208, 226, 0.55) 0%, rgba(255, 208, 226, 0) 72%);
+    }
+
+    .home-landing::after {
+        width: 380px;
+        height: 380px;
+        bottom: 110px;
+        left: -90px;
+        background: radial-gradient(circle, rgba(255, 235, 168, 0.35) 0%, rgba(255, 235, 168, 0) 72%);
+    }
+
+    .home-cta-group {
+        display: flex;
+        align-items: center;
+        gap: 0.85rem;
+        flex-wrap: wrap;
+    }
+
+    .home-btn-primary,
+    .home-btn-secondary {
+        display: inline-flex;
+        align-items: center;
+        justify-content: center;
+        gap: 0.45rem;
+        padding: 0.88rem 1.45rem;
+        border-radius: 999px;
+        font-weight: 700;
+        font-size: 0.94rem;
+        text-decoration: none;
+        transition: transform 0.2s ease, box-shadow 0.2s ease, color 0.2s ease, background 0.2s ease;
+    }
+
+    .home-btn-primary {
+        color: #fff;
+        background: linear-gradient(135deg, #ff2b62 0%, #ff4f80 100%);
+        box-shadow: 0 18px 30px rgba(255, 58, 111, 0.2);
+    }
+
+    .home-btn-primary:hover {
+        color: #fff;
+        transform: translateY(-2px);
+        box-shadow: 0 24px 34px rgba(255, 58, 111, 0.25);
+    }
+
+    .home-btn-secondary {
+        color: #ff2b62;
+        background: rgba(255, 255, 255, 0.72);
+        border: 1px solid rgba(255, 89, 134, 0.25);
+        box-shadow: 0 12px 24px rgba(32, 55, 94, 0.06);
+    }
+
+    .home-btn-secondary:hover {
+        color: #ff2b62;
+        transform: translateY(-2px);
+    }
+
+    .home-hero {
+        padding: 3.5rem 0 3rem;
+    }
+
+    .home-kicker,
+    .section-kicker {
+        display: inline-flex;
+        align-items: center;
+        padding: 0.38rem 0.8rem;
+        border-radius: 999px;
+        background: rgba(255, 86, 133, 0.12);
+        color: #ff2b62;
+        text-transform: uppercase;
+        letter-spacing: 0.18em;
+        font-size: 0.72rem;
+        font-weight: 800;
+    }
+
+    .section-kicker-link {
+        text-decoration: none;
+        transition: transform 0.2s ease, box-shadow 0.2s ease;
+    }
+
+    .section-kicker-link:hover {
+        color: #ff2b62;
+        transform: translateY(-1px);
+        box-shadow: 0 10px 18px rgba(44, 56, 85, 0.08);
+    }
+
+    .home-copy h1 {
+        margin: 1.25rem 0 1.35rem;
+        font-size: clamp(3rem, 4.4vw, 4.8rem);
+        line-height: 1.02;
+        letter-spacing: -0.06em;
+        font-weight: 800;
+        color: #172d57;
+    }
+
+    .home-copy p,
+    .service-card p,
+    .journey-card p,
+    .home-upload-box p {
+        color: #4a6588;
+        line-height: 1.8;
+        font-size: 1.02rem;
+    }
+
+    .home-copy p {
+        max-width: 530px;
+        margin-bottom: 0;
+    }
+
+    .home-visual-grid {
+        display: block;
+    }
+
+    .hero-feature-card {
+        position: relative;
+        min-height: 430px;
+        padding: 1rem;
+        border-radius: 2rem;
+        background: linear-gradient(135deg, rgba(255, 207, 226, 0.85), rgba(255, 239, 187, 0.78));
+        box-shadow: 0 26px 44px rgba(32, 55, 94, 0.11);
+        border: 1px solid rgba(255, 255, 255, 0.8);
+        overflow: hidden;
+    }
+
+    .hero-feature-media {
+        position: absolute;
+        inset: 1rem;
+        border-radius: 1.5rem;
+        overflow: hidden;
+        background: linear-gradient(135deg, rgba(255, 227, 236, 0.9), rgba(255, 241, 207, 0.82));
+    }
+
+    .hero-feature-media img,
+    .preview-card img {
+        width: 100%;
+        height: 100%;
+        object-fit: cover;
+    }
+
+    .hero-feature-media-placeholder {
+        width: 100%;
+        height: 100%;
+        background:
+            radial-gradient(circle at top left, rgba(255, 255, 255, 0.85), transparent 40%),
+            linear-gradient(135deg, rgba(255, 204, 222, 0.9), rgba(255, 241, 188, 0.82));
+    }
+
+    .home-section-heading h2,
+    .section-inline-heading h2,
+    .journey-card h2 {
+        margin: 1rem 0 0.9rem;
+        font-size: clamp(2rem, 3vw, 3rem);
+        line-height: 1.08;
+        letter-spacing: -0.05em;
+        font-weight: 800;
+        color: #172d57;
+    }
+
+    .home-upload-box {
+        position: relative;
+        z-index: 1;
+        width: min(86%, 380px);
+        margin-top: 0;
+        padding: 1rem;
+        border-radius: 1rem;
+        background: rgba(255, 255, 255, 0.74);
+        border: 1px solid rgba(241, 200, 212, 0.85);
+        box-shadow: 0 12px 24px rgba(44, 56, 85, 0.06);
+    }
+
+    .home-upload-box p {
+        margin-bottom: 0;
+        color: #4a6588;
+        line-height: 1.8;
+        font-size: 1.02rem;
+    }
+
+    .home-upload-box .form-control {
+        border-radius: 0.9rem;
+        border-color: rgba(241, 200, 212, 0.92);
+    }
+
+    .hero-action-panel {
+        position: absolute;
+        left: 1.8rem;
+        bottom: 1.8rem;
+        z-index: 1;
+        width: min(86%, 430px);
+        padding: 1rem;
+        border-radius: 1.1rem;
+        background: rgba(255, 251, 252, 0.78);
+        backdrop-filter: blur(8px);
+        border: 1px solid rgba(255, 255, 255, 0.9);
+        box-shadow: 0 12px 24px rgba(44, 56, 85, 0.06);
+    }
+
+    .hero-action-title {
+        margin-bottom: 0.75rem;
+        color: #ff2b62;
+        text-transform: uppercase;
+        letter-spacing: 0.08em;
+        font-size: 0.72rem;
+        font-weight: 800;
+    }
+
+    .hero-action-buttons {
+        display: flex;
+        flex-wrap: wrap;
+        gap: 0.65rem;
+    }
+
+    .hero-action-button {
+        display: inline-flex;
+        align-items: center;
+        justify-content: center;
+        padding: 0.7rem 1rem;
+        border-radius: 999px;
+        border: 1px solid rgba(255, 89, 134, 0.22);
+        background: rgba(255, 255, 255, 0.88);
+        color: #ff2b62;
+        font-size: 0.86rem;
+        font-weight: 700;
+        text-decoration: none;
+        transition: transform 0.2s ease, box-shadow 0.2s ease;
+    }
+
+    .hero-action-button:hover {
+        color: #ff2b62;
+        transform: translateY(-1px);
+        box-shadow: 0 10px 18px rgba(44, 56, 85, 0.08);
+    }
+
+    .hero-action-button--primary {
+        border-color: transparent;
+        background: linear-gradient(135deg, #ff2b62 0%, #ff4f80 100%);
+        color: #fff;
+    }
+
+    .hero-action-button--primary:hover {
+        color: #fff;
+    }
+
+    .hero-action-panel .home-upload-box {
+        width: 100%;
+        margin-top: 0.85rem;
+        background: rgba(255, 255, 255, 0.9);
+    }
+
+    .service-badge {
+        display: inline-flex;
+        align-items: center;
+        padding: 0.35rem 0.7rem;
+        border-radius: 999px;
+        background: rgba(255, 86, 133, 0.12);
+        color: #ff2b62;
+        font-size: 0.72rem;
+        font-weight: 800;
+    }
+
+    .home-section {
+        padding-top: 4.8rem;
+    }
+
+    .home-section-heading {
+        text-align: center;
+        max-width: 760px;
+        margin: 0 auto 2.2rem;
+    }
+
+    .service-badge {
+        margin-bottom: 1rem;
+    }
+
+    .service-card {
+        height: 100%;
+        padding: 1.6rem;
+        border-radius: 1.7rem;
+        background: rgba(255, 255, 255, 0.88);
+        border: 1px solid rgba(243, 195, 205, 0.66);
+        box-shadow: 0 18px 32px rgba(31, 51, 90, 0.06);
+    }
+
+    .service-card h3 {
+        font-size: 1.7rem;
+        line-height: 1.16;
+        letter-spacing: -0.04em;
+        font-weight: 800;
+        margin-bottom: 0.85rem;
+        color: #172d57;
+    }
+
+    .service-link {
+        color: #ff2b62;
+        text-decoration: none;
+        font-weight: 800;
+    }
+
+    .service-link:hover {
+        color: #ff2b62;
+    }
+
+    .journey-card {
+        height: 100%;
+        padding: 1.7rem;
+        border-radius: 1.9rem;
+        background: rgba(255, 255, 255, 0.86);
+        border: 1px solid rgba(243, 195, 205, 0.66);
+        box-shadow: 0 18px 32px rgba(31, 51, 90, 0.06);
+    }
+
+    .journey-list {
+        display: grid;
+        gap: 0.9rem;
+        margin-top: 1.4rem;
+    }
+
+    .journey-item {
+        display: flex;
+        align-items: center;
+        gap: 1rem;
+        padding: 1rem 1.1rem;
+        border-radius: 1rem;
+        background: rgba(255, 255, 255, 0.8);
+        border: 1px solid rgba(243, 195, 205, 0.82);
+    }
+
+    .journey-number {
+        flex-shrink: 0;
+        width: 42px;
+        height: 42px;
+        border-radius: 50%;
+        display: inline-flex;
+        align-items: center;
+        justify-content: center;
+        background: rgba(255, 86, 133, 0.14);
+        color: #ff2b62;
+        font-weight: 800;
+    }
+
+    .journey-text {
+        color: #2b4168;
+        font-weight: 600;
+        line-height: 1.6;
+    }
+
+    .journey-cta {
+        margin-top: 1.35rem;
+    }
+
+    .section-inline-heading {
+        display: flex;
+        align-items: end;
+        justify-content: space-between;
+        gap: 1rem;
+        margin-bottom: 1.8rem;
+    }
+
+    .section-inline-heading p {
+        max-width: 640px;
+        margin: 0.7rem 0 0;
+        color: #546f92;
+        line-height: 1.8;
+    }
+
+    .home-preview-grid {
+        display: grid;
+        gap: 1rem;
+    }
+
+    .home-preview-grid {
+        grid-template-columns: repeat(3, minmax(0, 1fr));
+    }
+
+    .preview-card {
+        position: relative;
+        min-height: 280px;
+        border-radius: 1.8rem;
+        overflow: hidden;
+        background: linear-gradient(135deg, rgba(255, 207, 226, 0.75), rgba(255, 239, 187, 0.7));
+        border: 1px solid rgba(243, 195, 205, 0.72);
+        box-shadow: 0 18px 32px rgba(31, 51, 90, 0.07);
+    }
+
+    .preview-card--alt {
+        background: linear-gradient(135deg, rgba(255, 242, 187, 0.82), rgba(255, 222, 232, 0.7));
+    }
+
+    .preview-card--soft {
+        background: linear-gradient(135deg, rgba(244, 215, 246, 0.72), rgba(255, 229, 235, 0.78));
+    }
+
+    .preview-overlay {
+        position: absolute;
+        inset: auto 0 0 0;
+        padding: 1.35rem;
+        background: linear-gradient(180deg, rgba(13, 27, 50, 0) 0%, rgba(17, 36, 67, 0.82) 100%);
+        color: #fff;
+    }
+
+    .preview-overlay small {
+        display: inline-block;
+        margin-bottom: 0.45rem;
+        color: rgba(255, 255, 255, 0.84);
+        text-transform: uppercase;
+        letter-spacing: 0.12em;
+        font-weight: 700;
+        font-size: 0.72rem;
+    }
+
+    .preview-overlay h3 {
+        margin-bottom: 0.4rem;
+        font-size: 1.35rem;
+        line-height: 1.2;
+        font-weight: 800;
+    }
+
+    .preview-overlay p {
+        margin: 0;
+        color: rgba(255, 255, 255, 0.84);
+        line-height: 1.6;
+    }
+
+    @media (max-width: 991.98px) {
+        .home-preview-grid {
+            grid-template-columns: 1fr;
+        }
+
+        .section-inline-heading {
+            flex-direction: column;
+            align-items: flex-start;
+        }
+    }
+
+    @media (max-width: 767.98px) {
+        .home-hero {
+            padding-top: 2.3rem;
+        }
+
+        .hero-feature-card {
+            min-height: 340px;
+        }
+
+        .home-btn-primary,
+        .home-btn-secondary {
+            width: 100%;
+        }
+
+        .hero-action-panel {
+            left: 1.3rem;
+            right: 1.3rem;
+            bottom: 1.3rem;
+            width: auto;
+        }
+    }
+</style>
+{% endblock %}
+
 {% block content %}
-<section class="mt-4 py-5 border rounded-3" style="background: radial-gradient(circle at 20% 20%, #f8ecf3 0%, #f3e2ec 45%, #eedbe6 100%); min-height: 620px; width: 100vw; margin-left: calc(50% - 50vw); margin-right: calc(50% - 50vw); border-color:#e3c8d7 !important;">
-    <div class="container">
-    <div class="row align-items-center" style="min-height: 540px;">
-        <div class="col-lg-6">
-            <h1 class="fw-bold" style="font-size: 3rem; line-height: 1.1; color: #511a2a;">
-                Sweet Moments,<br>
-                <span style="color: #7c253f;">Perfectly</span> Delivered
-            </h1>
-            <p class="lead mt-4" style="max-width: 560px; color: #5f5d63;">
-                Experience the finest celebration cakes and event packages with our intelligent ordering system.
-                From birthdays to weddings, we make every occasion special.
-            </p>
+<div class="home-landing">
+    <section class="home-hero" id="home">
+        <div class="container">
+            <div class="row align-items-center g-4 g-xl-5">
+                <div class="col-lg-5">
+                    <div class="home-copy">
+                        <span class="home-kicker">Celebration Made Beautiful</span>
+                        <h1>Cakes, Event Styling, and Custom Designs in One Place</h1>
+                        <p>
+                            Create memorable celebrations with customized cakes, event decorations, and party packages
+                            designed to match your theme, style, and occasion.
+                        </p>
 
-            <div class="d-flex gap-3 mt-4 flex-wrap">
-                {% if user.is_authenticated %}
-                <a href="{% url 'customize_cake' %}" class="btn btn-lg rounded-pill px-4" style="background:#c3833b;color:#fff;font-weight:600;">
-                    Order Now
-                </a>
-                <a href="{% url 'package_list' %}" class="btn btn-lg rounded-pill px-4" style="border:1px solid #c3833b;color:#8c5a20;background:#f8ecdc;font-weight:600;">
-                    View Packages
-                </a>
-                {% else %}
-                <a href="{% url 'register' %}" class="btn btn-lg rounded-pill px-4" style="background:#c3833b;color:#fff;font-weight:600;">
-                    Register
-                </a>
-                <a href="{% url 'login' %}" class="btn btn-lg rounded-pill px-4" style="border:1px solid #c3833b;color:#8c5a20;background:#f8ecdc;font-weight:600;">
-                    Log In
-                </a>
-                {% endif %}
-            </div>
+                        <div class="home-cta-group mt-4">
+                            {% if user.is_authenticated %}
+                            <a href="{% url 'customize_cake' %}" class="home-btn-primary">Order Now</a>
+                            <a href="{% url 'register' %}?next={% url 'customize_cake' %}" class="home-btn-secondary">Register</a>
+                            {% else %}
+                            <a href="{% url 'register' %}?next={% url 'customize_cake' %}" class="home-btn-primary">Order Now</a>
+                            <a href="{% url 'register' %}?next={% url 'customize_cake' %}" class="home-btn-secondary">Register</a>
+                            {% endif %}
+                        </div>
 
-            <div class="row mt-5 g-3">
-                <div class="col-4">
-                    <div class="h2 mb-0" style="color:#64233a;">15+</div>
-                    <div class="small text-muted">Years of Service</div>
-                </div>
-                <div class="col-4">
-                    <div class="h2 mb-0" style="color:#64233a;">10k+</div>
-                    <div class="small text-muted">Happy Customers</div>
-                </div>
-                <div class="col-4">
-                    <div class="h2 mb-0" style="color:#64233a;">100+</div>
-                    <div class="small text-muted">Cake Designs</div>
-                </div>
-            </div>
-        </div>
-
-        <div class="col-lg-6">
-            {% if hero_image %}
-            <img src="{{ hero_image.url }}" alt="Celebration Cake" class="img-fluid" style="height: 540px; width: 100%; object-fit: contain; object-position: center center;">
-            {% else %}
-            <div class="d-flex align-items-center justify-content-center rounded-4 border bg-white p-4" style="height: 420px;">
-                {% if is_manager_user %}
-                <form method="post" enctype="multipart/form-data" class="w-100" style="max-width: 360px;">
-                    {% csrf_token %}
-                    <h5 class="mb-3 text-center" style="color:#64233a;">Upload Homepage Image</h5>
-                    <div class="mb-2">
-                        {{ hero_upload_form.title }}
                     </div>
-                    <div class="mb-3">
-                        {{ hero_upload_form.image }}
-                    </div>
-                    <button type="submit" class="btn btn-primary w-100">Upload Image</button>
-                </form>
-                {% else %}
-                <span class="text-muted">Homepage image will be available soon.</span>
-                {% endif %}
-            </div>
-            {% endif %}
-        </div>
-    </div>
-    </div>
-</section>
+                </div>
 
-<section class="mt-4 p-4 rounded-4 border bg-white">
-    <div class="d-flex justify-content-between align-items-center">
-        <div>
-            <h2 class="h4 mb-1">Event Packages</h2>
-            <p class="text-muted mb-0">See all package sets and details in one page.</p>
+                <div class="col-lg-7">
+                    <div class="home-visual-grid">
+                        <div class="hero-feature-card">
+                            <div class="hero-feature-media">
+                            {% if hero_image %}
+                            <img src="{{ hero_image.url }}" alt="Featured celebration cake design">
+                            {% else %}
+                            <div class="hero-feature-media-placeholder"></div>
+                            {% endif %}
+                            </div>
+
+                            {% if not hero_image %}
+                            <div class="hero-action-panel">
+                                <div class="hero-action-title">Hero Controls</div>
+                                <div class="hero-action-buttons">
+                                    <a href="{% url 'gallery_view' %}" class="hero-action-button">Gallery Photos</a>
+                                    {% if is_manager_user %}
+                                    <a href="{% url 'gallery_manage' %}" class="hero-action-button">Choose Hero Image</a>
+                                    <button
+                                        class="hero-action-button hero-action-button--primary border-0"
+                                        type="button"
+                                        data-bs-toggle="collapse"
+                                        data-bs-target="#heroUploadPanel"
+                                        aria-expanded="true"
+                                        aria-controls="heroUploadPanel"
+                                    >
+                                        Upload Image
+                                    </button>
+                                    {% endif %}
+                                </div>
+
+                                {% if is_manager_user %}
+                                <div class="collapse show" id="heroUploadPanel">
+                                    <form method="post" enctype="multipart/form-data" class="home-upload-box">
+                                        {% csrf_token %}
+                                        <div class="mb-2">{{ hero_upload_form.title }}</div>
+                                        <div class="mb-3">{{ hero_upload_form.image }}</div>
+                                        <button type="submit" class="home-btn-primary w-100 border-0">Upload Homepage Image</button>
+                                    </form>
+                                </div>
+                                {% else %}
+                                <div class="home-upload-box">
+                                    <p>Browse gallery photos while a new homepage hero image is being prepared.</p>
+                                </div>
+                                {% endif %}
+                            </div>
+                            {% endif %}
+                        </div>
+
+                    </div>
+                </div>
+            </div>
         </div>
-        <a href="{% url 'package_list' %}" class="btn btn-outline-primary">Open Event Packages</a>
-    </div>
-</section>
+    </section>
+
+    <section class="home-section" id="services">
+        <div class="container">
+            <div class="home-section-heading">
+                <a href="{% url 'package_list' %}" class="section-kicker section-kicker-link">View Packages</a>
+                <h2>Everything You Need for a Beautiful Celebration</h2>
+            </div>
+
+            <div class="row g-4">
+                {% for featured_set in featured_sets|slice:":3" %}
+                <div class="col-lg-4">
+                    <article class="service-card">
+                        <span class="service-badge">
+                            {% if forloop.first %}Best Seller{% elif forloop.counter == 2 %}Elegant{% else %}All-in-One{% endif %}
+                        </span>
+                        <h3>
+                            {% if featured_set.category == "Uncategorized" %}
+                            Event Packages
+                            {% elif featured_set.category == "Birthday" %}
+                            Birthday
+                            {% else %}
+                            {{ featured_set.category }}
+                            {% endif %}
+                        </h3>
+                        <p>
+                            {% if featured_set.set_name == "General Set" %}
+                            A curated package collection with {{ featured_set.package_count }} ready-to-book options
+                            {% else %}
+                            {{ featured_set.set_name }} includes {{ featured_set.package_count }} package option{{ featured_set.package_count|pluralize }}
+                            {% endif %}
+                            {% if featured_set.start_price %}starting from P{{ featured_set.start_price|floatformat:0 }}{% endif %}
+                            to help you plan faster.
+                        </p>
+                        <a href="{% url 'package_list' %}" class="service-link">
+                            Explore <i class="bi bi-arrow-right-short"></i>
+                        </a>
+                    </article>
+                </div>
+                {% empty %}
+                <div class="col-lg-4">
+                    <article class="service-card">
+                        <span class="service-badge">Best Seller</span>
+                        <h3>Birthday</h3>
+                        <p>Customized cake designs for milestone birthdays, kids' parties, and colorful themed celebrations.</p>
+                        <a href="{% url 'customize_cake' %}" class="service-link">Explore <i class="bi bi-arrow-right-short"></i></a>
+                    </article>
+                </div>
+                <div class="col-lg-4">
+                    <article class="service-card">
+                        <span class="service-badge">Elegant</span>
+                        <h3>Wedding Cakes</h3>
+                        <p>Elegant multi-tier cake concepts and event styling details for receptions, ceremonies, and formal occasions.</p>
+                        <a href="{% url 'customize_cake' %}" class="service-link">Explore <i class="bi bi-arrow-right-short"></i></a>
+                    </article>
+                </div>
+                <div class="col-lg-4">
+                    <article class="service-card">
+                        <span class="service-badge">All-in-One</span>
+                        <h3>Event Packages</h3>
+                        <p>Decor, themed setups, and package bundles that make birthdays, debuts, and celebrations easier to organize.</p>
+                        <a href="{% url 'package_list' %}" class="service-link">Explore <i class="bi bi-arrow-right-short"></i></a>
+                    </article>
+                </div>
+                {% endfor %}
+            </div>
+        </div>
+    </section>
+
+    <section class="home-section" id="customization">
+        <div class="container">
+            <article class="journey-card">
+                <span class="section-kicker">Your Journey</span>
+                <p>Follow Steps below</p>
+
+                <div class="journey-list">
+                    <div class="journey-item">
+                        <span class="journey-number">1</span>
+                        <div class="journey-text">Choose your cake or event package</div>
+                    </div>
+                    <div class="journey-item">
+                        <span class="journey-number">2</span>
+                        <div class="journey-text">Customize flavor, size, colors, and design direction</div>
+                    </div>
+                    <div class="journey-item">
+                        <span class="journey-number">3</span>
+                        <div class="journey-text">Confirm booking details and track order updates in one place</div>
+                    </div>
+                </div>
+
+                <div class="journey-cta">
+                    {% if user.is_authenticated %}
+                    <a href="{% url 'customize_cake' %}" class="home-btn-secondary">Open Customization</a>
+                    {% else %}
+                    <a href="{% url 'register' %}" class="home-btn-secondary">Create Account to Start</a>
+                    {% endif %}
+                </div>
+            </article>
+        </div>
+    </section>
+
+    <section class="home-section" id="recommendations">
+        <div class="container">
+            <div class="section-inline-heading">
+                <div>
+                    <span class="section-kicker">AI Recommendation</span>
+                    <h2>Smart Picks for {{ homepage_recommendation_month }}</h2>
+                    <p>{{ homepage_recommendation_basis }} for {{ homepage_month_occasions|join:", " }} celebrations.</p>
+                </div>
+                <a href="{% url 'ai_recommendations_page' %}" class="home-btn-secondary">Open AI Recommendations</a>
+            </div>
+
+            <div class="home-preview-grid">
+                {% for rec in homepage_ai_recommendations %}
+                <article class="preview-card {% if forloop.counter == 2 %}preview-card--alt{% elif forloop.counter == 3 %}preview-card--soft{% endif %}">
+                    {% if rec.package.image %}
+                    <img src="{{ rec.package.image.url }}" alt="{{ rec.package.name }} recommendation">
+                    {% elif hero_image %}
+                    <img src="{{ hero_image.url }}" alt="AI celebration recommendation">
+                    {% endif %}
+
+                    <div class="preview-overlay">
+                        <small>{{ rec.reasons.0|default:"Trending recommendation" }}</small>
+                        <h3>{{ rec.package.name }}</h3>
+                        <p>{{ rec.match_score }}% match for your celebration needs{% if rec.package.category %} in {{ rec.package.category.name }}{% endif %}.</p>
+                    </div>
+                </article>
+                {% empty %}
+                <article class="preview-card">
+                    <div class="preview-overlay">
+                        <small>Seasonal Recommendation</small>
+                        <h3>Birthday Celebration Package</h3>
+                        <p>Recommended packages will appear here as soon as package data is available.</p>
+                    </div>
+                </article>
+                <article class="preview-card preview-card--alt">
+                    <div class="preview-overlay">
+                        <small>Best-Selling Pick</small>
+                        <h3>Wedding Styling Package</h3>
+                        <p>Popular package suggestions can be surfaced here for quicker booking decisions.</p>
+                    </div>
+                </article>
+                <article class="preview-card preview-card--soft">
+                    <div class="preview-overlay">
+                        <small>Trending Design</small>
+                        <h3>Christening Theme Package</h3>
+                        <p>AI-assisted recommendations can highlight the best match by season and order history.</p>
+                    </div>
+                </article>
+                {% endfor %}
+            </div>
+        </div>
+    </section>
+
+</div>
 {% endblock %}

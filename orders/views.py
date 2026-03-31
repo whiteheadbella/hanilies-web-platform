@@ -5,6 +5,7 @@ from django.db.models import F, Sum
 from django.shortcuts import get_object_or_404, redirect, render
 from django.utils import timezone
 
+from accounts.models import DeliveryProfile
 from accounts.permissions import is_manager
 from audit.services import log_user_action
 from notifications.models import CustomerNotification
@@ -26,7 +27,7 @@ def checkout_from_customization(request, customization_id):
 
     form = BookingForm(request.POST or None, user=request.user)
     if request.method == "POST" and form.is_valid():
-        profile = form.cleaned_data["delivery_profile"]
+        delivery_full_name, delivery_phone = _resolve_delivery_snapshot(request.user)
         order = Order.objects.create(
             customer=request.user,
             total_amount=Decimal(customization.price),
@@ -44,12 +45,8 @@ def checkout_from_customization(request, customization_id):
         booking = form.save(commit=False)
         booking.order = order
         booking.status = "PENDING"
-        booking.delivery_full_name = profile.full_name
-        booking.delivery_phone = profile.phone
-        booking.delivery_address = (
-            f"{profile.house_no}, {profile.street}, {profile.barangay}, "
-            f"{profile.city}, {profile.province}"
-        )
+        booking.delivery_full_name = delivery_full_name
+        booking.delivery_phone = delivery_phone
         booking.save()
 
         log_user_action(
@@ -67,6 +64,21 @@ def checkout_from_customization(request, customization_id):
 
 def _cart_total(items):
     return sum((item.unit_price * item.quantity for item in items), Decimal("0.00"))
+
+
+def _resolve_delivery_snapshot(user, inquiry_data=None):
+    inquiry_data = inquiry_data or {}
+    profile = (
+        DeliveryProfile.objects.filter(user=user)
+        .order_by("-is_default", "-created_at")
+        .first()
+    )
+    if profile:
+        return profile.full_name, profile.phone
+
+    full_name = inquiry_data.get("name") or user.get_full_name() or user.username
+    phone = inquiry_data.get("phone") or "N/A"
+    return full_name, phone
 
 
 @login_required
@@ -254,7 +266,9 @@ def checkout_cart(request):
             return redirect("checkout_cart")
 
         if form.is_valid():
-            profile = form.cleaned_data["delivery_profile"]
+            delivery_full_name, delivery_phone = _resolve_delivery_snapshot(
+                request.user, inquiry_data
+            )
             order = Order.objects.create(
                 customer=request.user,
                 total_amount=total,
@@ -276,11 +290,8 @@ def checkout_cart(request):
             booking = form.save(commit=False)
             booking.order = order
             booking.status = "PENDING"
-            booking.delivery_full_name = profile.full_name
-            booking.delivery_phone = profile.phone
-            booking.delivery_address = (
-                f"{profile.house_no}, {profile.street}, {profile.barangay}, {profile.city}, {profile.province}"
-            )
+            booking.delivery_full_name = delivery_full_name
+            booking.delivery_phone = delivery_phone
             booking.save()
 
             CartItem.objects.filter(customer=request.user).delete()
